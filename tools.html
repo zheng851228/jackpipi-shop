@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>介質與工具 — 陽光花園 jackpipi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --sage:#A8B5A2;--moss:#6B7C5C;--forest:#3D5040;--deep-forest:#253228;
+  --sand:#E8DDD0;--sand-light:#F5F0EA;--blush:#D4A8A0;--terracotta:#B5704F;
+  --cream:#FAF7F2;--bg:#F5F2EE;--white:#FFFFFF;--text:#2E2E2E;--text-muted:#7A7A7A;--text-light:#ABABAB;
+  --border:rgba(107,124,92,0.15);
+  --shadow-sm:0 2px 12px rgba(61,80,64,0.07);
+  --shadow-md:0 8px 32px rgba(61,80,64,0.11);
+  --shadow-lg:0 24px 64px rgba(61,80,64,0.14);
+  --radius-md:12px;--radius-lg:20px;--radius-full:999px;
+  --font-serif:'Noto Serif TC',serif;
+  --font-display:'Cormorant Garamond',serif;
+  --font-mono:'DM Mono',monospace;
+  --transition:0.3s cubic-bezier(0.4,0,0.2,1);
+  --nav-height:72px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-serif);background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%;object-fit:cover}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+.section{padding:90px 0}
+
+/* NAV */
+.nav{position:fixed;top:0;width:100%;z-index:100;height:var(--nav-height);background:rgba(245,242,238,0.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;transition:all .3s}
+.nav__inner{display:flex;align-items:center;justify-content:space-between;width:100%}
+.nav__logo{font-family:var(--font-serif);font-size:1.2rem;font-weight:700;color:var(--forest);letter-spacing:0.04em}
+.nav__links{display:flex;gap:36px}
+.nav__link{font-size:0.86rem;color:var(--text-muted);letter-spacing:0.05em;transition:color var(--transition);position:relative}
+.nav__link::after{content:'';position:absolute;bottom:-3px;left:0;right:0;height:1px;background:var(--moss);transform:scaleX(0);transform-origin:left;transition:transform var(--transition)}
+.nav__link:hover,.nav__link.active{color:var(--forest)}
+.nav__link:hover::after,.nav__link.active::after{transform:scaleX(1)}
+.nav__cart{display:flex;align-items:center;gap:6px;padding:8px 18px;background:var(--forest);color:var(--cream);border-radius:var(--radius-full);font-size:0.8rem;letter-spacing:0.06em;transition:all var(--transition);cursor:pointer}
+.nav__cart:hover{background:var(--deep-forest);transform:translateY(-1px)}
+.cart-count{display:none;align-items:center;justify-content:center;width:18px;height:18px;background:var(--blush);color:#fff;border-radius:50%;font-size:0.68rem;font-family:var(--font-mono)}
+
+/* PAGE HEADER */
+.page-header{padding:calc(var(--nav-height)+70px) 0 70px;background:linear-gradient(135deg,var(--sand) 0%,var(--sand-light) 60%,var(--bg) 100%);position:relative;overflow:hidden}
+.page-header::after{content:'🪣';position:absolute;right:8%;bottom:-20px;font-size:16rem;opacity:0.05;pointer-events:none;line-height:1}
+.page-header__eyebrow{font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.16em;color:var(--moss);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.page-header__eyebrow::before{content:'';width:22px;height:1px;background:var(--moss)}
+.page-header__title{font-family:var(--font-display);font-size:clamp(2.4rem,5vw,3.8rem);font-weight:300;color:var(--deep-forest);line-height:1.1;margin-bottom:16px}
+.page-header__title em{font-style:italic;color:var(--terracotta)}
+.page-header__desc{font-size:0.95rem;color:var(--text-muted);max-width:480px;line-height:1.8}
+
+/* SOIL FORMULA SECTION */
+.formula-section{background:var(--deep-forest);color:var(--cream);padding:80px 0}
+.formula-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.formula-title{font-family:var(--font-display);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:300;line-height:1.2;margin-bottom:20px}
+.formula-title em{font-style:italic;color:var(--blush)}
+.formula-desc{font-size:0.92rem;color:rgba(250,247,242,.7);line-height:1.9;margin-bottom:32px}
+.formula-bar{margin-bottom:28px}
+.formula-bar__label{display:flex;justify-content:space-between;margin-bottom:8px;font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase}
+.formula-bar__label span:last-child{color:var(--sage)}
+.formula-bar__track{height:10px;background:rgba(255,255,255,0.1);border-radius:var(--radius-full);overflow:hidden}
+.formula-bar__fill{height:100%;border-radius:var(--radius-full);animation:barGrow 1s ease both}
+@keyframes barGrow{from{width:0}to{width:var(--w)}}
+.formula-ingredients{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.ingredient{background:rgba(255,255,255,0.06);border-radius:var(--radius-lg);padding:20px;text-align:center;border:1px solid rgba(255,255,255,0.08);transition:background var(--transition)}
+.ingredient:hover{background:rgba(107,124,92,0.2)}
+.ingredient__icon{font-size:1.8rem;margin-bottom:10px}
+.ingredient__name{font-size:0.82rem;font-weight:500;margin-bottom:4px}
+.ingredient__desc{font-size:0.72rem;color:rgba(250,247,242,.55);line-height:1.5}
+
+/* PRODUCTS SECTION */
+.products-section{background:var(--bg)}
+.section-eyebrow{font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.14em;color:var(--moss);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section-eyebrow::before{content:'';width:20px;height:1px;background:var(--moss)}
+.section-title{font-family:var(--font-display);font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:300;color:var(--deep-forest);line-height:1.2;margin-bottom:48px}
+.section-title em{font-style:italic;color:var(--terracotta)}
+
+/* TOOL CARD — 橫排大卡 */
+.tool-cards{display:flex;flex-direction:column;gap:24px}
+.tool-card{display:grid;grid-template-columns:280px 1fr;background:var(--white);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);border:1px solid rgba(168,181,162,0.18);transition:transform var(--transition),box-shadow var(--transition)}
+.tool-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.tool-card__visual{background:var(--sand-light);display:flex;align-items:center;justify-content:center;font-size:5rem;aspect-ratio:1/1;max-height:280px;position:relative;overflow:hidden;flex-shrink:0}
+.tool-card__visual::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 60% 40%,rgba(168,181,162,0.15),transparent 70%)}
+.tool-card__body{padding:32px;display:flex;flex-direction:column;justify-content:space-between}
+.tool-card__cat{font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.12em;color:var(--sage);text-transform:uppercase;margin-bottom:8px}
+.tool-card__name{font-family:var(--font-serif);font-size:1.2rem;font-weight:500;color:var(--deep-forest);margin-bottom:6px}
+.tool-card__size{font-family:var(--font-mono);font-size:0.72rem;color:var(--text-light);margin-bottom:14px;letter-spacing:0.06em}
+.tool-card__desc{font-size:0.88rem;color:var(--text-muted);line-height:1.75;margin-bottom:20px;flex:1}
+.tool-card__specs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.spec-tag{padding:4px 12px;background:var(--sand-light);border-radius:var(--radius-full);font-size:0.72rem;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em}
+.tool-card__footer{display:flex;align-items:center;justify-content:space-between;padding-top:20px;border-top:1px solid var(--border)}
+.tool-card__price{font-family:var(--font-mono);font-size:1.1rem;color:var(--forest)}
+.tool-card__price del{font-size:0.82rem;color:var(--text-light);margin-left:6px}
+.btn-add{padding:10px 22px;background:var(--forest);color:var(--cream);border-radius:var(--radius-full);font-size:0.84rem;font-family:var(--font-serif);letter-spacing:0.04em;transition:all var(--transition);border:none;cursor:pointer}
+.btn-add:hover{background:var(--deep-forest);transform:scale(1.04)}
+.btn-add.added{background:var(--sage);pointer-events:none}
+
+/* GUIDE SECTION */
+.guide-section{background:var(--sand-light)}
+.guide-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.guide-card{background:var(--white);border-radius:var(--radius-lg);padding:32px;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.guide-icon{font-size:2.4rem;margin-bottom:18px}
+.guide-title{font-family:var(--font-serif);font-size:1.05rem;font-weight:500;color:var(--deep-forest);margin-bottom:12px}
+.guide-text{font-size:0.85rem;color:var(--text-muted);line-height:1.8}
+.guide-step{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.guide-step:last-child{border-bottom:none}
+.guide-step__num{font-family:var(--font-mono);font-size:0.7rem;color:var(--moss);flex-shrink:0;margin-top:2px}
+
+/* CART DRAWER */
+.cart-overlay{position:fixed;inset:0;background:rgba(37,50,40,0.4);z-index:200;opacity:0;pointer-events:none;transition:opacity var(--transition);backdrop-filter:blur(2px)}
+.cart-overlay.open{opacity:1;pointer-events:all}
+.cart-drawer{position:fixed;top:0;right:0;bottom:0;width:min(400px,95vw);background:var(--white);z-index:201;transform:translateX(100%);transition:transform .35s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
+.cart-drawer.open{transform:translateX(0)}
+.cart-hd{display:flex;align-items:center;justify-content:space-between;padding:22px;border-bottom:1px solid var(--border)}
+.cart-hd h2{font-family:var(--font-serif);font-size:1.05rem;font-weight:500;color:var(--deep-forest)}
+.cart-close-btn{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--text-muted);transition:all var(--transition);cursor:pointer}
+.cart-close-btn:hover{background:var(--sand);color:var(--forest)}
+.cart-bd{flex:1;overflow-y:auto;padding:20px}
+.cart-empty-msg{text-align:center;padding:56px 0;color:var(--text-light);font-size:0.88rem}
+.cart-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.cart-item:last-child{border-bottom:none}
+.ci-thumb{width:60px;height:60px;border-radius:var(--radius-md);background:var(--sand-light);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0}
+.ci-info{flex:1}
+.ci-name{font-size:0.86rem;font-weight:500;color:var(--deep-forest);margin-bottom:3px}
+.ci-size{font-size:0.72rem;color:var(--text-light);font-family:var(--font-mono);margin-bottom:8px}
+.ci-ctrl{display:flex;align-items:center;gap:8px}
+.qty-btn{width:24px;height:24px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:var(--text-muted);cursor:pointer;transition:all var(--transition)}
+.qty-btn:hover{border-color:var(--moss);color:var(--forest)}
+.qty-val{font-family:var(--font-mono);font-size:0.82rem;min-width:14px;text-align:center}
+.ci-price{font-family:var(--font-mono);font-size:0.86rem;color:var(--forest);align-self:flex-start;white-space:nowrap}
+.cart-ft{padding:20px;border-top:1px solid var(--border);background:var(--sand-light)}
+.cart-row{display:flex;justify-content:space-between;margin-bottom:12px;font-size:0.9rem;color:var(--text-muted)}
+.cart-total-row{display:flex;justify-content:space-between;margin-bottom:18px;font-weight:500;font-size:1rem;color:var(--deep-forest)}
+.cart-total-row span:last-child{font-family:var(--font-mono);color:var(--forest)}
+.btn-checkout{width:100%;padding:14px;background:var(--forest);color:var(--cream);border-radius:var(--radius-full);font-size:0.88rem;font-family:var(--font-serif);letter-spacing:0.05em;transition:all var(--transition);border:none;cursor:pointer}
+.btn-checkout:hover{background:var(--deep-forest)}
+.toast-wrap{position:fixed;bottom:28px;right:28px;z-index:300;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{padding:11px 18px;background:var(--deep-forest);color:var(--cream);border-radius:var(--radius-md);font-size:0.8rem;box-shadow:var(--shadow-md);animation:toastIn .3s ease;display:flex;align-items:center;gap:7px}
+@keyframes toastIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+.toast.out{animation:toastOut .3s ease forwards}
+@keyframes toastOut{to{opacity:0;transform:translateX(18px)}}
+
+/* RWD */
+@media(max-width:1024px){
+  .formula-grid{grid-template-columns:1fr;gap:48px}
+  .formula-ingredients{grid-template-columns:1fr 1fr 1fr}
+}
+@media(max-width:768px){
+  .nav__links{display:none}
+  .tool-card{grid-template-columns:1fr}
+  .tool-card__visual{max-height:200px;aspect-ratio:unset;padding:40px 0}
+  .guide-grid{grid-template-columns:1fr}
+  .formula-ingredients{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .container{padding:0 16px}
+  .tool-card__body{padding:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="container nav__inner">
+    <a href="index.html" class="nav__logo">陽光花園 jackpipi</a>
+    <ul class="nav__links">
+      <li><a href="product.html" class="nav__link">所有植物</a></li>
+      <li><a href="tools.html" class="nav__link active">介質與工具</a></li>
+      <li><a href="pet.html" class="nav__link">照護助手</a></li>
+      <li><a href="about.html" class="nav__link">品牌故事</a></li>
+    </ul>
+    <button class="nav__cart" id="open-cart">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      購物車 <span class="cart-count" id="cart-count">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="container">
+    <p class="page-header__eyebrow">介質與工具</p>
+    <h1 class="page-header__title">種好植物的<br><em>基本功</em></h1>
+    <p class="page-header__desc">好的介質是根系的第一個家，好的工具讓照顧植物少一點門檻、多一點儀式感。</p>
+  </div>
+</div>
+
+<!-- SOIL FORMULA -->
+<section class="formula-section">
+  <div class="container">
+    <div class="formula-grid">
+      <div>
+        <h2 class="formula-title">黃金比例<br><em>特調配方</em></h2>
+        <p class="formula-desc">我們的特調介質經過反覆試驗，專為台灣氣候設計。透氣性與保水性取得最佳平衡，讓多肉根系在不積水的環境下健康生長。</p>
+        <div class="formula-bar">
+          <div class="formula-bar__label"><span>赤玉土</span><span>40%</span></div>
+          <div class="formula-bar__track"><div class="formula-bar__fill" style="--w:40%;background:var(--terracotta)"></div></div>
+        </div>
+        <div class="formula-bar">
+          <div class="formula-bar__label"><span>粗砂</span><span>30%</span></div>
+          <div class="formula-bar__track"><div class="formula-bar__fill" style="--w:30%;background:var(--sage)"></div></div>
+        </div>
+        <div class="formula-bar">
+          <div class="formula-bar__label"><span>珍珠石</span><span>30%</span></div>
+          <div class="formula-bar__track"><div class="formula-bar__fill" style="--w:30%;background:var(--blush)"></div></div>
+        </div>
+      </div>
+      <div class="formula-ingredients">
+        <div class="ingredient">
+          <div class="ingredient__icon">🟤</div>
+          <div class="ingredient__name">赤玉土</div>
+          <div class="ingredient__desc">保水性佳，提供養分緩釋，穩定根系生長環境</div>
+        </div>
+        <div class="ingredient">
+          <div class="ingredient__icon">⬜</div>
+          <div class="ingredient__name">粗砂</div>
+          <div class="ingredient__desc">增加排水性，防止根部積水，模擬原生地礫石環境</div>
+        </div>
+        <div class="ingredient">
+          <div class="ingredient__icon">🔵</div>
+          <div class="ingredient__name">珍珠石</div>
+          <div class="ingredient__desc">超輕量透氣材質，促進空氣流通，避免根腐</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="section products-section">
+  <div class="container">
+    <p class="section-eyebrow">精選商品</p>
+    <h2 class="section-title">工具 &amp; 介質<em>選品</em></h2>
+    <div class="tool-cards" id="tool-cards"></div>
+  </div>
+</section>
+
+<!-- GUIDE -->
+<section class="section guide-section">
+  <div class="container">
+    <p class="section-eyebrow" style="margin-bottom:12px">換盆指南</p>
+    <h2 class="section-title" style="margin-bottom:48px">新手<em>換盆教學</em></h2>
+    <div class="guide-grid">
+      <div class="guide-card">
+        <div class="guide-icon">📦</div>
+        <h3 class="guide-title">換盆前準備</h3>
+        <div>
+          <div class="guide-step"><span class="guide-step__num">01</span><span class="guide-text">選擇比原盆大 1–2cm 的新盆，確保有排水孔</span></div>
+          <div class="guide-step"><span class="guide-step__num">02</span><span class="guide-text">備好特調排水介質，建議換盆前一天讓植株停止澆水</span></div>
+          <div class="guide-step"><span class="guide-step__num">03</span><span class="guide-text">準備迷你工具組：小鏟、耙子、鑷子</span></div>
+        </div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-icon">🌱</div>
+        <h3 class="guide-title">換盆步驟</h3>
+        <div>
+          <div class="guide-step"><span class="guide-step__num">01</span><span class="guide-text">輕敲盆壁，小心脫盆，避免損傷根系</span></div>
+          <div class="guide-step"><span class="guide-step__num">02</span><span class="guide-text">去除舊土，修剪枯根或腐根至健康組織</span></div>
+          <div class="guide-step"><span class="guide-step__num">03</span><span class="guide-text">放入新盆，填入特調介質，輕壓固定，預留 1cm 澆水空間</span></div>
+        </div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-icon">💧</div>
+        <h3 class="guide-title">換盆後照護</h3>
+        <div>
+          <div class="guide-step"><span class="guide-step__num">01</span><span class="guide-text">換盆後先放置散射光處緩根 5–7 天，暫勿澆水</span></div>
+          <div class="guide-step"><span class="guide-step__num">02</span><span class="guide-text">緩根結束後少量澆水，逐漸恢復正常照護節奏</span></div>
+          <div class="guide-step"><span class="guide-step__num">03</span><span class="guide-text">2 週後確認植株穩定，即可移至理想光照位置</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CART -->
+<div class="cart-overlay" id="cart-overlay"></div>
+<aside class="cart-drawer" id="cart-drawer">
+  <div class="cart-hd">
+    <h2>購物車</h2>
+    <button class="cart-close-btn" id="close-cart">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="cart-bd" id="cart-body"></div>
+  <div class="cart-ft">
+    <div class="cart-row"><span>小計</span><span id="cart-sub">NT$ 0</span></div>
+    <div class="cart-total-row"><span>總計</span><span id="cart-total">NT$ 0</span></div>
+    <button class="btn-checkout">前往結帳</button>
+  </div>
+</aside>
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+const TOOLS = [
+  {id:"TOOL-001",name:"多肉特調排水介質",size:"1公升裝",emoji:"🪣",price:120,originalPrice:120,
+   desc:"採用赤玉土 40%、粗砂 30%、珍珠石 30% 黃金比例調配，透氣不積水。針對台灣高溫潮濕氣候優化，直接使用，省去新手配土試錯的時間。",
+   specs:["赤玉土 40%","粗砂 30%","珍珠石 30%","無農藥殘留","pH 6.0–7.0"],
+   featured:false},
+  {id:"TOOL-002",name:"長嘴精準澆水壺",size:"500ml",emoji:"🚿",price:280,originalPrice:320,
+   desc:"細長壺嘴設計，讓水流精準落在根部土壤，不讓葉片沾水，有效避免積水造成的葉片腐爛。啞光質感握把，澆水從此有了儀式感。",
+   specs:["容量 500ml","不鏽鋼細長嘴","矽膠防滑握把","附蓋防塵設計"],
+   featured:true},
+  {id:"TOOL-003",name:"不鏽鋼迷你工具組",size:"鏟 / 耙 / 叉 各一",emoji:"🔧",price:350,originalPrice:350,
+   desc:"304 不鏽鋼打造，迷你尺寸完美適配 1–3 吋盆操作。鬆土、移植、整理側芽一套解決。質感好到捨不得只拿來種植，也適合當禮物送出。",
+   specs:["304 不鏽鋼","全長約 18cm","三件成組","附收納皮套"],
+   featured:false}
+];
+
+let cart = JSON.parse(localStorage.getItem('jk_cart')||'[]');
+function saveCart(){localStorage.setItem('jk_cart',JSON.stringify(cart))}
+function getTotal(){return cart.reduce((s,i)=>s+i.price*i.qty,0)}
+function getCount(){return cart.reduce((s,i)=>s+i.qty,0)}
+
+// 渲染工具卡
+document.getElementById('tool-cards').innerHTML = TOOLS.map(t=>`
+  <div class="tool-card">
+    <div class="tool-card__visual">${t.emoji}</div>
+    <div class="tool-card__body">
+      <div>
+        <p class="tool-card__cat">🪣 介質與工具</p>
+        <h3 class="tool-card__name">${t.name}</h3>
+        <p class="tool-card__size">${t.size}</p>
+        <p class="tool-card__desc">${t.desc}</p>
+        <div class="tool-card__specs">${t.specs.map(s=>`<span class="spec-tag">${s}</span>`).join('')}</div>
+      </div>
+      <div class="tool-card__footer">
+        <p class="tool-card__price">NT$ ${t.price}${t.originalPrice>t.price?`<del>NT$ ${t.originalPrice}</del>`:''}</p>
+        <button class="btn-add" data-id="${t.id}">加入購物車</button>
+      </div>
+    </div>
+  </div>`).join('');
+
+// 購物車
+function addToCart(id){
+  const p=TOOLS.find(x=>x.id===id);if(!p)return;
+  const ex=cart.find(x=>x.id===id);
+  if(ex)ex.qty++;else cart.push({id:p.id,name:p.name,price:p.price,size:p.size,emoji:p.emoji,qty:1});
+  saveCart();updateCount();showToast(`✦ ${p.name} 已加入購物車`);
+}
+function updateCount(){
+  const n=getCount();const el=document.getElementById('cart-count');
+  el.textContent=n;el.style.display=n>0?'flex':'none';
+}
+function renderCart(){
+  const body=document.getElementById('cart-body');
+  const t=getTotal();
+  document.getElementById('cart-sub').textContent=`NT$ ${t}`;
+  document.getElementById('cart-total').textContent=`NT$ ${t}`;
+  if(!cart.length){body.innerHTML=`<div class="cart-empty-msg">🪴<br><br>購物車是空的</div>`;return;}
+  body.innerHTML=cart.map(i=>`
+    <div class="cart-item">
+      <div class="ci-thumb">${i.emoji}</div>
+      <div class="ci-info">
+        <p class="ci-name">${i.name}</p>
+        <p class="ci-size">${i.size}</p>
+        <div class="ci-ctrl">
+          <button class="qty-btn" data-action="dec" data-id="${i.id}">−</button>
+          <span class="qty-val">${i.qty}</span>
+          <button class="qty-btn" data-action="inc" data-id="${i.id}">+</button>
+        </div>
+      </div>
+      <p class="ci-price">NT$ ${i.price*i.qty}</p>
+    </div>`).join('');
+}
+function showToast(msg){
+  const wrap=document.getElementById('toast-wrap');
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  wrap.appendChild(t);
+  setTimeout(()=>{t.classList.add('out');t.addEventListener('animationend',()=>t.remove(),{once:true});},2400);
+}
+
+document.getElementById('tool-cards').addEventListener('click',e=>{
+  const btn=e.target.closest('.btn-add');if(!btn)return;
+  addToCart(btn.dataset.id);
+  btn.textContent='✓ 已加入';btn.classList.add('added');
+});
+document.getElementById('open-cart').addEventListener('click',()=>{
+  renderCart();
+  document.getElementById('cart-overlay').classList.add('open');
+  document.getElementById('cart-drawer').classList.add('open');
+  document.body.style.overflow='hidden';
+});
+function closeCart(){
+  document.getElementById('cart-overlay').classList.remove('open');
+  document.getElementById('cart-drawer').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.getElementById('close-cart').addEventListener('click',closeCart);
+document.getElementById('cart-overlay').addEventListener('click',closeCart);
+document.getElementById('cart-body').addEventListener('click',e=>{
+  const btn=e.target.closest('.qty-btn');if(!btn)return;
+  const item=cart.find(x=>x.id===btn.dataset.id);if(!item)return;
+  if(btn.dataset.action==='inc')item.qty++;
+  else{item.qty--;if(item.qty<=0)cart.splice(cart.indexOf(item),1);}
+  saveCart();updateCount();renderCart();
+});
+window.addEventListener('scroll',()=>{
+  const nav=document.getElementById('nav');
+  nav.style.background=window.scrollY>40?'rgba(245,242,238,0.96)':'rgba(245,242,238,0.9)';
+  nav.style.boxShadow=window.scrollY>40?'0 4px 20px rgba(0,0,0,0.05)':'none';
+});
+updateCount();
+</script>
+</body>
+</html>
