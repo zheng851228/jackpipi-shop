@@ -8,56 +8,57 @@
   <link rel="stylesheet" href="global.css" />
   
   <style>
-    /* ── 後台專屬佈局 ── */
-    :root {
-      --admin-sb-w: 240px;
-    }
-    body { background: var(--bg); display: flex; min-height: 100vh; }
+    /* ── 後台核心佈局 (Desktop) ── */
+    :root { --admin-sb-w: 240px; }
+    body { background: var(--bg); display: flex; min-height: 100vh; flex-direction: row; margin: 0; }
     
     /* 側邊欄 */
     .sb { 
       width: var(--admin-sb-w); background: var(--deep-forest); color: var(--cream); 
       position: fixed; height: 100vh; padding: 32px 20px; z-index: 100;
+      display: flex; flex-direction: column; flex-shrink: 0;
     }
     .sb h2 { font-family: var(--font-serif); font-size: 1.2rem; margin-bottom: 40px; display: flex; align-items: center; gap: 8px; }
-    .sb-nav { display: flex; flex-direction: column; gap: 8px; }
+    .sb-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; }
     .sb-link { 
       padding: 12px 16px; border-radius: var(--r-md); cursor: pointer; transition: var(--t); 
       font-size: 0.9rem; color: rgba(250,247,242,0.6); display: flex; align-items: center; gap: 10px;
     }
     .sb-link:hover, .sb-link.active { background: rgba(107,124,92,0.25); color: var(--cream); }
-    .sb-logout { margin-top: auto; color: var(--blush); opacity: 0.8; }
+    .sb-logout { margin-top: auto; color: var(--blush); opacity: 0.8; padding: 12px 16px; cursor: pointer; font-size: 0.9rem; }
 
     /* 主內容區 */
-    .main { margin-left: var(--admin-sb-w); padding: 40px; width: 100%; flex: 1; }
-    .card { 
-      background: var(--white); border-radius: var(--r-lg); border: 1px solid var(--border); 
-      padding: 32px; margin-bottom: 24px; box-shadow: var(--shadow-sm); 
-    }
+    .main { margin-left: var(--admin-sb-w); padding: 40px; width: 100%; flex: 1; min-width: 0; }
+    .card { background: var(--white); border-radius: var(--r-lg); border: 1px solid var(--border); padding: 32px; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
     
-    /* 表單與表格 */
     .pg { display: none; } 
     .pg.on { display: block; animation: fadeIn .3s ease; }
     @keyframes fadeIn { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    /* 表格 RWD */
+    .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; min-width: 500px; margin-top: 15px; }
     th { text-align: left; padding: 14px; background: var(--sand-light); font-size: 0.8rem; font-family: var(--font-mono); color: var(--moss); }
     td { padding: 14px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
     
-    .fi { 
-      width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: var(--r-md); 
-      margin-top: 6px; margin-bottom: 18px; outline: none; transition: var(--t);
-    }
+    /* 表單元件 */
+    .fi { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: var(--r-md); margin-top: 6px; margin-bottom: 18px; outline: none; transition: var(--t); background: var(--white); box-sizing: border-box; }
     .fi:focus { border-color: var(--moss); box-shadow: 0 0 0 3px rgba(107,124,92,0.1); }
-    
-    .img-prev { 
-      width: 120px; height: 120px; object-fit: cover; border-radius: var(--r-md); 
-      background: var(--sand-light); margin-bottom: 12px; display: none; border: 1px solid var(--border);
-    }
-    
+    .img-prev { width: 120px; height: 120px; object-fit: cover; border-radius: var(--r-md); background: var(--sand-light); margin-bottom: 12px; display: none; border: 1px solid var(--border); }
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .kpi-card h3 { font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
-    .kpi-card h1 { font-family: var(--font-display); font-size: 2.5rem; font-weight: 300; color: var(--forest); }
+
+    /* ── 📱 行動裝置 RWD 修復 ── */
+    @media (max-width: 1024px) {
+      body { flex-direction: column; }
+      .sb { position: relative; width: 100%; height: auto; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
+      .sb h2 { margin-bottom: 15px; font-size: 1rem; }
+      .sb-nav { flex-direction: row; overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; gap: 8px; }
+      .sb-link { white-space: nowrap; padding: 8px 15px; font-size: 0.85rem; }
+      .sb-logout { position: absolute; top: 15px; right: 15px; padding: 0; margin: 0; font-size: 0.8rem; }
+      .main { margin-left: 0 !important; padding: 20px; box-sizing: border-box; }
+      .grid-2 { grid-template-columns: 1fr !important; gap: 0 !important; }
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -65,31 +66,37 @@
   <aside class="sb">
     <h2>陽光花園 🌿</h2>
     <nav class="sb-nav">
-      <div class="sb-link active" onclick="go('dashboard')">🏠 儀表板總覽</div>
-      <div class="sb-link" onclick="go('products')">🌿 商品清單管理</div>
-      <div class="sb-link" onclick="go('add-product')">➕ 新增植栽選品</div>
-      <div style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;"></div>
-      <div class="sb-link sb-logout" id="btn-logout">🚪 登出系統</div>
+      <div class="sb-link active" onclick="go('dashboard', this)">🏠 總覽</div>
+      <div class="sb-link" onclick="go('products', this)">🌿 商品管理</div>
+      <div class="sb-link" onclick="go('add-product', this)">➕ 新增商品</div>
     </nav>
+    <div class="sb-logout" id="btn-logout">🚪 登出系統</div>
   </aside>
 
   <main class="main">
-    
     <div class="pg on" id="pg-dashboard">
-      <h2 class="page-title" style="margin-bottom:24px">營運<em>概況</em></h2>
+      <h2 style="margin-bottom:24px; font-family:var(--font-display); font-weight:300;">營運<em>概況</em></h2>
       <div class="kpi-grid">
-        <div class="card kpi-card"><h3>總上架商品</h3><h1 id="kpi-pr">0</h1></div>
-        <div class="card kpi-card"><h3>庫存告急</h3><h1 id="kpi-out" style="color:var(--terracotta)">0</h1></div>
+        <div class="card">
+          <p style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 8px;">總上架商品</p>
+          <h1 id="kpi-pr" style="font-family: var(--font-display); font-size: 2.5rem; color: var(--forest);">0</h1>
+        </div>
+        <div class="card">
+          <p style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 8px;">庫存告急</p>
+          <h1 id="kpi-out" style="font-family: var(--font-display); font-size: 2.5rem; color: var(--terracotta);">0</h1>
+        </div>
       </div>
     </div>
 
     <div class="pg" id="pg-products">
       <div class="card">
-        <h3 style="margin-bottom:10px">商品清單</h3>
-        <table>
-          <thead><tr><th>商品名稱</th><th>售價</th><th>庫存</th><th>狀態</th></tr></thead>
-          <tbody id="p-body"></tbody>
-        </table>
+        <h3 style="margin-bottom:20px; color: var(--deep-forest);">目前上架清單</h3>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>商品名稱</th><th>售價</th><th>庫存</th><th>狀態</th></tr></thead>
+            <tbody id="p-body"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -97,13 +104,12 @@
       <div class="card" style="max-width:800px;">
         <h3 style="margin-bottom: 24px; color: var(--deep-forest);">新增植栽選品</h3>
         
-        <div id="panel-upload" style="margin-bottom: 24px; padding: 20px; background: var(--sand-light); border-radius: var(--r-md);">
-          <label class="form-label">商品照片</label>
-          <img class="img-prev" id="img-prev">
+        <div style="margin-bottom: 24px; padding: 20px; background: var(--sand-light); border-radius: var(--r-md); text-align:center;">
+          <img class="img-prev" id="img-prev" style="margin: 0 auto 15px;">
           <input type="file" id="pf-file" accept="image/*" class="fi" style="margin-bottom:0; background:transparent; border:none; padding:0;">
         </div>
         
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+        <div class="grid-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
           <div><label class="form-label">商品名稱 *</label><input class="fi" id="pf-name" placeholder="如：乙女心"></div>
           <div>
             <label class="form-label">分類 *</label>
@@ -115,44 +121,28 @@
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+        <div class="grid-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
           <div><label class="form-label">售價 (NT$) *</label><input class="fi" type="number" id="pf-price"></div>
-          <div><label class="form-label">原始價格 (特價顯示用)</label><input class="fi" type="number" id="pf-originalPrice"></div>
+          <div><label class="form-label">原始價格 (特價標籤用)</label><input class="fi" type="number" id="pf-originalPrice"></div>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+        <div class="grid-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
           <div><label class="form-label">庫存數量 *</label><input class="fi" type="number" id="pf-stock" value="10"></div>
-          <div><label class="form-label">預設 Emoji (無圖時顯示)</label><input class="fi" id="pf-emoji" value="🌿"></div>
+          <div><label class="form-label">Emoji (無圖顯示)</label><input class="fi" id="pf-emoji" value="🌿"></div>
         </div>
 
-        <div style="margin: 15px 0; display:flex; gap:24px; align-items: center;">
+        <div style="margin: 10px 0 20px; display:flex; gap:16px; flex-wrap:wrap;">
           <label style="cursor: pointer;"><input type="checkbox" id="pf-featured"> 🔥 熱銷精選</label>
           <label style="cursor: pointer;"><input type="checkbox" id="pf-petSafe"> 🐾 寵物友善</label>
           <label style="cursor: pointer;"><input type="checkbox" id="pf-active" checked> 立即上架</label>
         </div>
 
-        <div>
-          <label class="form-label">商品描述</label>
-          <textarea class="fi" id="pf-desc" rows="3" placeholder="介紹這株植物的特色..."></textarea>
-        </div>
-
-        <div style="margin-top:30px; border-top:1px solid var(--border); padding-top:30px;">
-          <h4 style="color:var(--forest); margin-bottom:20px;">🌿 照護圖鑑資訊 (選填)</h4>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-            <div><label class="form-label">學名</label><input class="fi" id="pf-species" placeholder="Echeveria..."></div>
-            <div><label class="form-label">日照</label><input class="fi" id="pf-sun" placeholder="半日照..."></div>
-            <div><label class="form-label">澆水</label><input class="fi" id="pf-water" placeholder="每週一次..."></div>
-            <div><label class="form-label">適合溫度</label><input class="fi" id="pf-temp" placeholder="20-30°C"></div>
-          </div>
-        </div>
-
-        <button class="btn btn--primary btn--full" id="btn-save" style="margin-top:20px;">儲存並發布商品</button>
+        <button class="btn btn--primary" id="btn-save" style="width:100%; margin-top:10px; padding: 15px;">儲存並發布商品</button>
       </div>
     </div>
   </main>
 
 <script type="module">
-// 引入統一設定
 import { db, storage, auth } from "./firebase-config.js";
 import { collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
@@ -161,55 +151,73 @@ import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-aut
 const $ = id => document.getElementById(id);
 let imgFile = null;
 
-// 路由切換
-window.go = n => {
+[span_3](start_span)// 🟢 圖片壓縮函數[span_3](end_span)
+async function compressImage(file, { maxWidth = 1000, quality = 0.7 } = {}) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.src = e.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) { height = (maxWidth / width) * height; width = maxWidth; }
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', quality);
+      };
+    };
+  });
+}
+
+[span_4](start_span)// 路由控制[span_4](end_span)
+window.go = (n, el) => {
   document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
   $(`pg-${n}`).classList.add('on');
-  document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
-  // 這裡需要根據點擊目標加 active，簡易做法是找 text 包含關鍵字的
+  if(el){
+    document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
+    el.classList.add('active');
+  }
 };
 
-// 圖片預覽處理
+[span_5](start_span)// 圖片預覽[span_5](end_span)
 $('pf-file').onchange = e => {
   imgFile = e.target.files[0];
   if (!imgFile) return;
   const reader = new FileReader();
-  reader.onload = event => { 
-    $('img-prev').src = event.target.result; 
-    $('img-prev').style.display = 'block'; 
-  };
+  reader.onload = event => { $('img-prev').src = event.target.result; $('img-prev').style.display = 'block'; };
   reader.readAsDataURL(imgFile);
 };
 
-// 登出
-$('btn-logout').onclick = () => {
-  signOut(auth).then(() => { window.location.href = 'member.html'; });
-};
+// 登出系統
+$('btn-logout').onclick = () => { signOut(auth).then(() => { window.location.href = 'member.html'; }); };
 
-// 儲存商品
+[span_6](start_span)[span_7](start_span)// 儲存邏輯[span_6](end_span)[span_7](end_span)
 $('btn-save').onclick = async () => {
   const name = $('pf-name').value.trim();
   const price = parseFloat($('pf-price').value);
-  if(!name || isNaN(price)) return alert('請填寫商品名稱與售價！');
+  if(!name || isNaN(price)) return alert('請務必填寫商品名稱與售價！');
 
   const btn = $('btn-save');
   btn.disabled = true;
-  btn.textContent = '處理中...';
+  btn.textContent = '壓縮並上傳中...';
 
   try {
     let imageUrl = '';
-    // 如果有選圖片，上傳到 Storage
     if(imgFile) {
-      const fileName = `${Date.now()}_${imgFile.name}`;
-      const storageRef = ref(storage, `products/${fileName}`);
-      const uploadTask = await uploadBytesResumable(storageRef, imgFile);
+      const compressedBlob = await compressImage(imgFile); [span_8](start_span)// 壓縮圖片[span_8](end_span)
+      const storageRef = ref(storage, `products/${Date.now()}_thumb.jpg`);
+      const uploadTask = await uploadBytesResumable(storageRef, compressedBlob); [span_9](start_span)// 上傳壓縮檔[span_9](end_span)
       imageUrl = await getDownloadURL(uploadTask.ref);
     }
 
-    const productData = {
+    const data = {
       name,
       category: $('pf-category').value,
-      price: price,
+      price,
       originalPrice: parseFloat($('pf-originalPrice').value) || price,
       stock: parseInt($('pf-stock').value) || 0,
       emoji: $('pf-emoji').value,
@@ -217,64 +225,40 @@ $('btn-save').onclick = async () => {
       featured: $('pf-featured').checked,
       petSafe: $('pf-petSafe').checked,
       active: $('pf-active').checked,
-      desc: $('pf-desc').value,
-      species: $('pf-species').value,
-      careSun: $('pf-sun').value,
-      careWater: $('pf-water').value,
-      careTemp: $('pf-temp').value,
       updatedAt: serverTimestamp()
     };
 
-    await addDoc(collection(db, 'products'), productData);
-    alert('✅ 商品已成功上架！');
-    
-    // 清空表單
-    document.querySelectorAll('.fi').forEach(el => el.value = '');
-    $('img-prev').style.display = 'none';
-    imgFile = null;
-    go('products');
-
-  } catch (error) {
-    alert('儲存失敗：' + error.message);
-  } finally {
+    await addDoc(collection(db, 'products'), data);
+    alert('✅ 商品已優化並成功上架！');
+    location.reload(); 
+  } catch (e) {
+    alert('儲存失敗：' + e.message);
     btn.disabled = false;
-    btn.textContent = '儲存並發布商品';
   }
 };
 
-// 實時監聽數據與更新 KPI
-onSnapshot(collection(db, 'products'), snapshot => {
-  const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  
-  // 更新 KPI
-  $('kpi-pr').textContent = products.length;
-  $('kpi-out').textContent = products.filter(p => p.stock <= 0).length;
+[span_10](start_span)// 實時更新儀表板與清單[span_10](end_span)
+onSnapshot(collection(db, 'products'), s => {
+  const prods = s.docs.map(d => ({ id: d.id, ...d.data() }));
+  $('kpi-pr').textContent = prods.length;
+  $('kpi-out').textContent = prods.filter(p => p.stock <= 0).length;
 
-  // 更新表格
-  $('p-body').innerHTML = products.map(p => `
+  $('p-body').innerHTML = prods.map(p => `
     <tr>
       <td>
         <div style="display:flex; align-items:center; gap:10px;">
-          <div style="width:32px; height:32px; border-radius:4px; background:var(--sand-light); display:flex; align-items:center; justify-content:center; font-size:1.2rem; overflow:hidden;">
-            ${p.imageUrl ? `<img src="${p.imageUrl}" style="width:100%; height:100%; object-fit:cover;">` : p.emoji}
+          <div style="width:32px; height:32px; border-radius:4px; background:var(--sand-light); overflow:hidden; display:flex; align-items:center; justify-content:center;">
+            ${p.imageUrl ? `<img src="${p.imageUrl}" style="width:100%;height:100%;object-fit:cover">` : p.emoji}
           </div>
-          <div>
-            <strong style="display:block">${p.name}</strong>
-            <small style="color:var(--text-muted)">${p.category}</small>
-          </div>
+          <div style="font-weight:500;">${p.name}</div>
         </div>
       </td>
       <td style="font-family:var(--font-mono)">NT$ ${p.price}</td>
       <td style="font-family:var(--font-mono)">${p.stock}</td>
-      <td>
-        <span class="badge" style="background:${p.stock > 0 ? 'var(--success)' : 'var(--terracotta)'}; position:static; font-size:0.65rem;">
-          ${p.stock > 0 ? '供應中' : '缺貨'}
-        </span>
-      </td>
+      <td><span class="badge" style="background:${p.stock > 0 ? 'var(--success)' : 'var(--terracotta)'}; position:static; font-size:0.65rem;">${p.stock > 0 ? '供應中' : '缺貨'}</span></td>
     </tr>
   `).join('');
 });
-
 </script>
 </body>
 </html>
