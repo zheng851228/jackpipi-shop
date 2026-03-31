@@ -8,47 +8,50 @@
   <link rel="stylesheet" href="global.css" />
   
   <style>
-    /* ── 結帳頁專屬樣式 ── */
-    .checkout-wrap { padding: calc(var(--nav-h) + 40px) 0 80px; }
+    /* ── 結帳頁專屬佈局 ── */
+    .checkout-wrap { padding: calc(var(--nav-h) + 40px) 0 100px; }
     .checkout-layout { display: grid; grid-template-columns: 1fr 380px; gap: 40px; align-items: start; }
 
-    /* 步驟面板 */
+    /* 步驟切換動畫 */
     .step-panel { display: none; }
-    .step-panel.active { display: block; animation: panelIn .3s ease forwards; }
-    @keyframes panelIn { from{opacity:0; transform:translateX(16px)} to{opacity:1; transform:translateX(0)} }
+    .step-panel.active { display: block; animation: panelIn .4s var(--ease) forwards; }
+    @keyframes panelIn { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
 
-    /* 訂單摘要 (右側) */
+    /* 右側訂單摘要 */
     .order-summary { 
       background: var(--white); border-radius: var(--r-lg); padding: 28px; 
       box-shadow: var(--shadow-sm); border: 1px solid var(--border); 
       position: sticky; top: calc(var(--nav-h) + 20px); 
     }
-    .os-items { max-height: 280px; overflow-y: auto; margin-bottom: 18px; }
-    .os-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .os-items { max-height: 320px; overflow-y: auto; margin: 16px 0; }
+    .os-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
     .os-thumb { 
-      width: 44px; height: 44px; border-radius: var(--r-md); background: var(--sand-light); 
-      display: flex; align-items: center; justify-content: center; font-size: 1.3rem; position: relative; 
+      width: 50px; height: 50px; border-radius: var(--r-md); background: var(--sand-light); 
+      display: flex; align-items: center; justify-content: center; font-size: 1.4rem; position: relative; overflow: hidden;
     }
+    .os-thumb img { width: 100%; height: 100%; object-fit: cover; }
     .os-qty { 
-      position: absolute; top: -4px; right: -4px; width: 16px; height: 16px; 
-      background: var(--forest); color: #fff; border-radius: 50%; font-size: 0.6rem; 
-      display: flex; align-items: center; justify-content: center; 
+      position: absolute; top: -2px; right: -2px; width: 18px; height: 18px; 
+      background: var(--forest); color: #fff; border-radius: 50%; font-size: 0.65rem; 
+      display: flex; align-items: center; justify-content: center; z-index: 2;
     }
 
-    /* 配送與付款選項 */
+    /* 選項卡片 (付款/配送) */
     .opt-card { 
-      display: flex; align-items: center; gap: 14px; padding: 16px; 
+      display: flex; align-items: center; gap: 14px; padding: 18px; 
       border: 1.5px solid var(--border); border-radius: var(--r-md); 
-      cursor: pointer; transition: var(--t); margin-bottom: 10px;
+      cursor: pointer; transition: var(--t); margin-bottom: 12px; background: var(--white);
     }
     .opt-card:hover { border-color: var(--sage); }
     .opt-card.selected { border-color: var(--moss); background: rgba(107,124,92,0.05); }
-    .opt-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); position: relative; }
+    .opt-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); position: relative; flex-shrink: 0; }
     .opt-card.selected .opt-dot::after { content:''; position: absolute; inset: 3px; background: var(--moss); border-radius: 50%; }
 
-    @media(max-width: 900px) {
+    /* 響應式調整 */
+    @media (max-width: 900px) {
       .checkout-layout { grid-template-columns: 1fr; }
-      .order-summary { position: static; }
+      .order-summary { position: static; margin-top: 30px; }
+      .grid-2 { grid-template-columns: 1fr !important; gap: 0 !important; }
     }
   </style>
 </head>
@@ -60,61 +63,80 @@
 
         <main>
           <div class="step-panel active" id="step-1">
-            <h2 class="section-title">確認<em>購物車</em></h2>
-            <div id="cart-review-list" style="margin: 24px 0;"></div>
-            <div class="btn-group" style="display:flex; gap:12px;">
-              <button class="btn btn--primary" id="go-to-2">填寫收件資料</button>
+            <h2 class="section-title">確認<em>清單</em></h2>
+            <p style="color:var(--text-muted); margin-bottom: 24px;">請檢查您的植物選品是否正確。</p>
+            <div id="review-list" class="card" style="padding:0; overflow:hidden; margin-bottom: 30px;">
+              </div>
+            <div style="display:flex; gap:12px;">
+              <button class="btn btn--primary" id="go-to-2">填寫收件資訊</button>
               <a href="product.html" class="btn btn--outline">繼續購物</a>
             </div>
           </div>
 
           <div class="step-panel" id="step-2">
-            <h2 class="section-title">收件<em>資訊</em></h2>
+            <h2 class="section-title">配送<em>資訊</em></h2>
             <div class="card" style="margin-top:24px;">
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
-                <div><label class="form-label">收件人姓名 *</label><input class="form-input" id="f-name"></div>
-                <div><label class="form-label">聯絡電話 *</label><input class="form-input" id="f-phone" placeholder="09xx-xxx-xxx"></div>
+              <div class="grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+                <div><label class="form-label">收件人姓名 *</label><input class="form-input" id="f-name" placeholder="請輸入姓名"></div>
+                <div><label class="form-label">聯絡電話 *</label><input class="form-input" id="f-phone" placeholder="09XX-XXX-XXX"></div>
               </div>
               <div class="form-group" style="margin-bottom:20px;">
                 <label class="form-label">Email *</label>
-                <input class="form-input" id="f-email">
+                <input class="form-input" id="f-email" placeholder="接收訂單確認信">
+              </div>
+              <div class="form-group" style="margin-bottom:20px;">
+                <label class="form-label">配送地址 *</label>
+                <input class="form-input" id="f-addr" placeholder="請輸入完整收件地址">
               </div>
               <div class="form-group">
-                <label class="form-label">配送地址 *</label>
-                <input class="form-input" id="f-addr" placeholder="請輸入詳細地址">
+                <label class="form-label">訂單備註 (選填)</label>
+                <textarea class="form-input" id="f-note" rows="2" placeholder="有什麼想告訴我們的？"></textarea>
               </div>
             </div>
 
-            <h3 style="margin: 32px 0 16px; font-family:var(--font-serif);">付款方式</h3>
+            <h3 style="margin: 40px 0 20px; font-family:var(--font-serif); font-size:1.2rem;">付款方式</h3>
             <div class="pay-options">
-              <div class="opt-card selected" data-pay="transfer"><div class="opt-dot"></div><div><strong>ATM 轉帳</strong><p style="font-size:0.75rem; color:var(--text-muted)">匯款後請告知帳號末五碼</p></div></div>
-              <div class="opt-card" data-pay="cod"><div class="opt-dot"></div><div><strong>貨到付款</strong><p style="font-size:0.75rem; color:var(--text-muted)">另收 30 元手續費</p></div></div>
+              <div class="opt-card selected" data-pay="transfer">
+                <div class="opt-dot"></div>
+                <div><strong>ATM 轉帳</strong><p style="font-size:0.75rem; color:var(--text-muted)">匯款後請於會員中心告知末五碼</p></div>
+              </div>
+              <div class="opt-card" data-pay="cod">
+                <div class="opt-dot"></div>
+                <div><strong>貨到付款</strong><p style="font-size:0.75rem; color:var(--text-muted)">物流將酌收 30 元手續費</p></div>
+              </div>
             </div>
 
-            <div class="btn-group" style="display:flex; gap:12px; margin-top:32px;">
+            <div style="display:flex; gap:12px; margin-top:40px;">
               <button class="btn btn--primary" id="btn-submit">確認送出訂單</button>
               <button class="btn btn--outline" id="back-to-1">返回上一步</button>
             </div>
           </div>
 
           <div class="step-panel" id="step-success">
-            <div style="text-align:center; padding:60px 0;">
-              <div style="font-size:4rem; margin-bottom:20px;">🌿</div>
+            <div style="text-align:center; padding:80px 0;">
+              <div style="font-size:4.5rem; margin-bottom:24px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));">🌿</div>
               <h2 class="section-title">訂單已<em>成立</em></h2>
-              <p style="color:var(--text-muted); margin: 16px 0 32px;">感謝您的訂購！我們將儘速為您安排出貨。</p>
-              <a href="member.html#orders" class="btn btn--primary">查看我的訂單</a>
+              <p style="color:var(--text-muted); margin: 20px 0 40px; line-height: 1.6;">
+                感謝您的訂購！我們將於 2-3 個工作天內為您出貨。<br>
+                您可以前往會員中心追蹤物流狀態。
+              </p>
+              <div style="display:flex; justify-content:center; gap:12px;">
+                <a href="member.html#orders" class="btn btn--primary">查看我的訂單</a>
+                <a href="index.html" class="btn btn--outline">回首頁</a>
+              </div>
             </div>
           </div>
         </main>
 
-        <aside class="order-summary" id="summary-sidebar">
-          <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:8px;">訂單摘要</p>
-          <div class="os-items" id="os-items"></div>
-          <div style="border-top: 1px solid var(--border); padding-top:16px; margin-top:16px;">
-            <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px;"><span>商品小計</span><span id="os-sub">NT$ 0</span></div>
-            <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px;"><span>運費</span><span id="os-ship">NT$ 100</span></div>
-            <div style="display:flex; justify-content:space-between; font-weight:700; font-size:1.1rem; color:var(--forest); margin-top:12px; border-top:1px solid var(--border); padding-top:12px;">
-              <span>總計</span><span id="os-total">NT$ 0</span>
+        <aside class="order-summary" id="order-sidebar">
+          <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; border-bottom:1px solid var(--border); padding-bottom:10px;">訂單摘要</p>
+          <div class="os-items" id="os-items">
+            </div>
+          <div style="border-top: 1px solid var(--border); padding-top:20px; margin-top:10px;">
+            <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:10px;"><span>商品小計</span><span id="os-sub">NT$ 0</span></div>
+            <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:10px;"><span>運費</span><span id="os-ship">NT$ 100</span></div>
+            <div style="display:flex; justify-content:space-between; font-weight:700; font-size:1.2rem; color:var(--forest); margin-top:15px; border-top:1px solid var(--border); padding-top:15px;">
+              <span>總計金額</span><span id="os-total">NT$ 0</span>
             </div>
           </div>
         </aside>
@@ -125,6 +147,7 @@
 
   <script type="module" src="firebase-config.js"></script>
   <script type="module" src="global.js"></script>
+
   <script type="module">
     import { db, auth } from "./firebase-config.js";
     import { Cart, showToast } from "./global.js";
@@ -135,7 +158,7 @@
     let selectedPay = 'transfer';
     let shipFee = 100;
 
-    // 1. 初始化與監聽 Auth 預填資料
+    // 🟢 1. 監聽登入狀態並預填資料
     onAuthStateChanged(auth, user => {
       if (user) {
         currentUser = user;
@@ -144,100 +167,118 @@
       }
     });
 
-    // 2. 渲染訂單摘要
-    function refreshSummary() {
-      const items = Cart.get();
-      const sub = Cart.subtotal(items);
+    // 🟢 2. 訂單數據渲染 (整合圖片優化)
+    function refreshOrderInfo() {
+      const cart = Cart.get();
+      const sub = Cart.subtotal(cart);
       
-      document.getElementById('os-items').innerHTML = items.map(i => `
+      // 如果購物車空了，跳回商品頁
+      if(cart.length === 0 && !document.getElementById('step-success').classList.contains('active')) {
+        window.location.href = 'product.html';
+        return;
+      }
+
+      // 渲染摘要列表
+      const listHTML = cart.map(i => `
         <div class="os-item">
           <div class="os-thumb">
-            ${i.imageUrl ? `<img src="${i.imageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">` : i.emoji}
+            ${i.imageUrl ? `<img src="${i.imageUrl}" loading="lazy">` : i.emoji}
             <span class="os-qty">${i.qty}</span>
           </div>
           <div style="flex:1">
-            <p style="font-size:0.85rem; font-weight:500;">${i.name}</p>
-            <p style="font-size:0.7rem; color:var(--text-light);">${i.size}</p>
+            <p style="font-size:0.88rem; font-weight:500; color:var(--deep-forest);">${i.name}</p>
+            <p style="font-size:0.75rem; color:var(--text-light);">${i.size || '標準規格'}</p>
           </div>
-          <p style="font-family:var(--font-mono); font-size:0.85rem;">NT$ ${i.price * i.qty}</p>
+          <p style="font-family:var(--font-mono); font-size:0.9rem;">NT$ ${(i.price * i.qty).toLocaleString()}</p>
         </div>
       `).join('');
 
+      document.getElementById('os-items').innerHTML = listHTML;
+      document.getElementById('review-list').innerHTML = listHTML.replace(/os-item/g, 'os-item card-item').replace(/padding:12px 0/g, 'padding:20px');
+
+      // 更新金額
       document.getElementById('os-sub').textContent = `NT$ ${sub.toLocaleString()}`;
       document.getElementById('os-ship').textContent = `NT$ ${shipFee}`;
       document.getElementById('os-total').textContent = `NT$ ${(sub + shipFee).toLocaleString()}`;
-      
-      // Step 1 的列表也同步渲染
-      document.getElementById('cart-review-list').innerHTML = document.getElementById('os-items').innerHTML;
     }
 
-    // 3. 步驟切換邏輯
+    // 🟢 3. 步驟切換
     document.getElementById('go-to-2').onclick = () => {
-      if (Cart.get().length === 0) return showToast("您的購物車是空的喔！");
       document.getElementById('step-1').classList.remove('active');
       document.getElementById('step-2').classList.add('active');
-      window.scrollTo(0,0);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     document.getElementById('back-to-1').onclick = () => {
       document.getElementById('step-2').classList.remove('active');
       document.getElementById('step-1').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // 4. 付款方式切換
+    // 🟢 4. 付款方式選取
     document.querySelectorAll('.opt-card').forEach(card => {
       card.onclick = () => {
         document.querySelectorAll('.opt-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
         selectedPay = card.dataset.pay;
-        shipFee = selectedPay === 'cod' ? 130 : 100; // 貨到付款加 30
-        refreshSummary();
+        shipFee = selectedPay === 'cod' ? 130 : 100; // 貨到付款加 30 手續費
+        refreshOrderInfo();
       };
     });
 
-    // 5. 提交訂單到 Firebase
+    // 🟢 5. 提交訂單到 Firestore
     document.getElementById('btn-submit').onclick = async () => {
       const name = document.getElementById('f-name').value.trim();
       const phone = document.getElementById('f-phone').value.trim();
       const addr = document.getElementById('f-addr').value.trim();
+      const email = document.getElementById('f-email').value.trim();
+      const note = document.getElementById('f-note').value.trim();
 
-      if (!name || !phone || !addr) return alert("請填寫完整的收件資訊！");
+      if (!name || !phone || !addr || !email) {
+        showToast("⚠️ 請填寫完整的收件資訊");
+        return;
+      }
 
       const btn = document.getElementById('btn-submit');
       btn.disabled = true;
-      btn.textContent = "處理中...";
+      btn.textContent = "正在建立訂單...";
 
       try {
+        const orderId = `JK${Date.now().toString().slice(-8)}`;
         const orderData = {
+          orderId: orderId,
           userId: currentUser ? currentUser.uid : 'guest',
-          customer: { name, phone, email: document.getElementById('f-email').value, addr },
+          customer: { name, phone, email, addr, note },
           items: Cart.get(),
           subtotal: Cart.subtotal(),
           shipFee: shipFee,
           total: Cart.subtotal() + shipFee,
-          payment: selectedPay,
+          payment: selectedPay === 'transfer' ? 'ATM 轉帳' : '貨到付款',
           status: "待處理",
           createdAt: serverTimestamp()
         };
 
+        // 寫入資料庫
         await addDoc(collection(db, "orders"), orderData);
         
-        // 成功後清空購物車
+        // 成功流程
         Cart.clear();
         document.getElementById('step-2').classList.remove('active');
-        document.getElementById('summary-sidebar').style.display = 'none';
+        document.getElementById('order-sidebar').style.display = 'none';
         document.getElementById('step-success').classList.add('active');
-        showToast("✨ 訂單已成功送出！");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showToast("✨ 訂單建立成功！");
 
       } catch (e) {
-        alert("訂單送出失敗：" + e.message);
+        console.error("訂單錯誤：", e);
+        showToast("❌ 送出失敗，請檢查網路連線");
         btn.disabled = false;
         btn.textContent = "確認送出訂單";
       }
     };
 
-    // 初始渲染
-    refreshSummary();
+    // 初始執行
+    refreshOrderInfo();
   </script>
 </body>
 </html>
