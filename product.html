@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// ── 1. Firebase 配置 (與您的後台一致) ──
 const firebaseConfig = {
   apiKey: "AIzaSyC103Q-v31-z7nHnnM8KpIZbrrzjrGgGJ4",
   authDomain: "fir-config-f2e57.firebaseapp.com",
@@ -14,7 +15,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ── 狀態管理 ──
+// ── 2. 全域狀態管理 ──
 let dbProducts = []; 
 let cart = JSON.parse(localStorage.getItem('jk_cart') || '[]');
 let state = { 
@@ -22,10 +23,11 @@ let state = {
   diff: '', pet: false, sale: false, feat: false, sort: 'default' 
 };
 
-// ── 初始化：實時監聽資料庫 ──
+// ── 3. 實時連動：監聽資料庫變化 ──
 function initApp() {
   const q = query(collection(db, "products"), where("active", "==", true));
   
+  [span_7](start_span)[span_8](start_span)// 當資料庫有變動時，自動觸發畫面重新渲染[span_7](end_span)[span_8](end_span)
   onSnapshot(q, (snapshot) => {
     dbProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     updateSidebarCounts();
@@ -34,51 +36,49 @@ function initApp() {
   });
 }
 
-// ── 渲染商品列表 ──
+// ── 4. 核心渲染邏輯 ──
 function renderProducts() {
   const grid = document.getElementById('product-grid');
   let list = [...dbProducts];
 
-  // 篩選邏輯
+  [span_9](start_span)// 篩選器：類別、難度、寵物友善[span_9](end_span)
   if (state.cat) list = list.filter(p => p.category === state.cat);
   if (state.diff) list = list.filter(p => p.difficulty == state.diff);
   if (state.pet) list = list.filter(p => p.petSafe === true);
-  if (state.sale) list = list.filter(p => p.price < p.originalPrice);
+  if (state.sale) list = list.filter(p => p.price < (p.originalPrice || p.price));
   if (state.feat) list = list.filter(p => p.featured === true);
 
-  // 排序處理
+  [span_10](start_span)// 排序處理[span_10](end_span)
   if (state.sort === 'price-asc') list.sort((a, b) => a.price - b.price);
   else if (state.sort === 'price-desc') list.sort((a, b) => b.price - a.price);
   else if (state.sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
 
   document.getElementById('product-count').textContent = `顯示 ${list.length} 件商品`;
 
-  if (!list.length) {
-    grid.innerHTML = `<div class="empty-state">目前室內還沒有符合條件的植物...</div>`;
-    return;
-  }
-
   grid.innerHTML = list.map((p, i) => {
     const isSale = p.originalPrice > p.price;
+    [span_11](start_span)const isOut = p.stock <= 0; // 庫存判定[span_11](end_span)
+    
     const mediaContent = p.imageUrl 
       ? `<img src="${p.imageUrl}" alt="${p.name}">`
-      : `<span style="font-size:3.8rem">${p.emoji || '🌿'}</span>`;
+      : `<div class="emoji-placeholder">${p.emoji || '🌿'}</div>`;
 
     return `
-      <article class="product-card" style="animation-delay: ${i * 50}ms">
+      <article class="product-card ${isOut ? 'sold-out' : ''}" style="animation-delay: ${i * 50}ms">
         <div class="card-img">
           ${mediaContent}
-          ${p.featured ? '<span class="badge badge--hot">熱銷</span>' : ''}
-          ${isSale ? '<span class="badge badge--sale">特價</span>' : ''}
+          ${isOut ? '<span class="badge badge--sold">已售罄</span>' : (p.featured ? '<span class="badge badge--hot">熱銷</span>' : (isSale ? '<span class="badge badge--sale">特價</span>' : ''))}
           ${p.petSafe ? '<span class="pet-safe">🐾 友善</span>' : ''}
         </div>
         <div class="card-body">
           <p class="card-cat">${translateCat(p.category)}</p>
           <h3 class="card-name">${p.name}</h3>
-          <p class="card-desc">${p.desc || '這株植物正在等待它的故事...'}</p>
+          <p class="card-desc">${p.desc || '這株植物正在等待喜愛它的人...'}</p>
           <div class="card-footer">
             <p class="card-price">NT$ ${p.price.toLocaleString()}${isSale ? `<del>NT$ ${p.originalPrice}</del>` : ''}</p>
-            <button class="btn-cart" onclick="addToCart('${p.id}')">加入</button>
+            <button class="btn-cart" onclick="addToCart('${p.id}')" ${isOut ? 'disabled' : ''}>
+              ${isOut ? '補貨中' : '加入'}
+            </button>
           </div>
         </div>
       </article>`;
@@ -90,20 +90,15 @@ function translateCat(c) {
   return map[c] || c;
 }
 
-// ── 自動更新側邊欄數量 ──
+[span_12](start_span)// 動態統計側邊欄數量[span_12](end_span)
 function updateSidebarCounts() {
   const counts = { all: dbProducts.length };
   dbProducts.forEach(p => { counts[p.category] = (counts[p.category] || 0) + 1; });
-  
   document.querySelectorAll('[data-cat]').forEach(el => {
-    const cat = el.dataset.cat;
     const countEl = el.querySelector('.filter-option__count');
-    if (countEl) countEl.textContent = counts[cat || 'all'] || 0;
+    if (countEl) countEl.textContent = counts[el.dataset.cat || 'all'] || 0;
   });
 }
 
-// 啟動監聽
 initApp();
-
-// (其餘購物車 addToCart, renderCart, 導覽列 UI 事件請保留原狀)
 </script>
