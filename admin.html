@@ -15,7 +15,7 @@
   .sb { width: 240px; background: var(--deep); color: var(--cream); position: fixed; height: 100vh; padding: 20px; }
   .main { margin-left: 240px; padding: 20px; min-height: 100vh; }
   .card { background: var(--white); border-radius: var(--r-lg); border: 1px solid var(--border); padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-  .fi { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 8px; margin-top: 6px; margin-bottom: 15px; outline: none; }
+  .fi { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 8px; margin-top: 6px; margin-bottom: 15px; outline: none; box-sizing: border-box; }
   .btn { padding: 12px 24px; border-radius: 99px; border: none; cursor: pointer; font-weight: 700; transition: 0.3s; }
   .btn-p { background: var(--forest); color: var(--cream); }
   .btn-p:hover { background: var(--deep); transform: translateY(-2px); }
@@ -27,6 +27,7 @@
   th { text-align: left; padding: 12px; background: #f8faf8; border-bottom: 2px solid var(--border); }
   td { padding: 12px; border-bottom: 1px solid var(--border); }
   .img-prev { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; background: #eee; margin-bottom: 10px; display: none; }
+  label { font-size: 0.85rem; font-weight: 700; color: var(--forest); }
 </style>
 </head>
 <body>
@@ -39,7 +40,7 @@
       <p onclick="go('products')" style="cursor:pointer">🌿 商品列表</p>
       <p onclick="go('add-product')" style="cursor:pointer">➕ 新增商品</p>
       <hr style="opacity:0.2; margin: 20px 0;">
-      <button onclick="handleLogout()" style="color:#D4A8A0; background:none; border:none; cursor:pointer;">🚪 登出系統</button>
+      <button onclick="handleLogout()" style="color:#D4A8A0; background:none; border:none; cursor:pointer; padding:0; font-size:1rem;">🚪 登出系統</button>
     </nav>
   </aside>
 
@@ -63,13 +64,14 @@
 
     <div class="pg" id="pg-add-product">
       <div class="card" style="max-width:700px;">
-        <h3>新增植栽選品</h3>
-        <div id="panel-upload">
+        <h3 style="margin-bottom: 20px; color: var(--deep);">新增植栽選品</h3>
+        
+        <div id="panel-upload" style="margin-bottom: 20px;">
           <img class="img-prev" id="img-prev">
           <input type="file" id="pf-file" accept="image/*" onchange="previewImg(this)">
         </div>
         
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:20px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
           <div><label>商品名稱 *</label><input class="fi" id="pf-name" placeholder="如：乙女心"></div>
           <div>
             <label>分類 *</label>
@@ -82,25 +84,41 @@
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-          <div><label>售價 *</label><input class="fi" type="number" id="pf-price"></div>
+          <div><label>售價 (NT$) *</label><input class="fi" type="number" id="pf-price"></div>
           <div><label>原始價格 (特價標籤用)</label><input class="fi" type="number" id="pf-originalPrice"></div>
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
           <div><label>庫存數量 *</label><input class="fi" type="number" id="pf-stock" value="10"></div>
-          <div><label>Emoji (若無圖片)</label><input class="fi" id="pf-emoji" value="🌿"></div>
+          <div><label>Emoji (無圖片時顯示)</label><input class="fi" id="pf-emoji" value="🌿"></div>
         </div>
 
-        <div style="margin: 15px 0; display:flex; gap:20px;">
-          <label><input type="checkbox" id="pf-featured"> 🔥 熱銷精選</label>
-          <label><input type="checkbox" id="pf-petSafe"> 🐾 寵物友善</label>
-          <label><input type="checkbox" id="pf-active" checked> 立即上架</label>
+        <div style="margin: 15px 0; display:flex; gap:20px; align-items: center;">
+          <label style="cursor: pointer;"><input type="checkbox" id="pf-featured"> 🔥 熱銷精選</label>
+          <label style="cursor: pointer;"><input type="checkbox" id="pf-petSafe"> 🐾 寵物友善</label>
+          <label style="cursor: pointer;"><input type="checkbox" id="pf-active" checked> 立即上架</label>
         </div>
 
-        <label>商品描述</label>
-        <textarea class="fi" id="pf-desc" rows="4" placeholder="介紹這株植物的特色..."></textarea>
+        <div>
+          <label>商品描述</label>
+          <textarea class="fi" id="pf-desc" rows="3" placeholder="介紹這株植物的特色..."></textarea>
+        </div>
 
-        <button class="btn btn-p" id="btn-save" style="width:100%">儲存並發布商品</button>
+        <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
+          <h4 style="color:var(--forest); margin-bottom:15px;">🌿 照護助手專用資訊 (選填)</h4>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+            <div><label>學名 (拉丁文)</label><input class="fi" id="pf-species" placeholder="如：Echeveria subsessilis"></div>
+            <div><label>日照需求</label><input class="fi" id="pf-sun" placeholder="如：半日照 / 散射光"></div>
+            <div><label>澆水頻率</label><input class="fi" id="pf-water" placeholder="如：夏季每週 1 次"></div>
+            <div><label>適合溫度</label><input class="fi" id="pf-temp" placeholder="如：20-30°C"></div>
+          </div>
+          <div>
+            <label>照護技巧 (多項請用逗號「,」隔開)</label>
+            <textarea class="fi" id="pf-tips" rows="2" placeholder="例如：澆水需乾透再澆, 避免正午直曬..."></textarea>
+          </div>
+        </div>
+
+        <button class="btn btn-p" id="btn-save" style="width:100%; margin-top:20px;">儲存並發布商品</button>
       </div>
     </div>
   </main>
@@ -108,11 +126,18 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-const FB = { apiKey: "AIzaSyC103Q-v31-z7nHnnM8KpIZbrrzjrGgGJ4", authDomain: "fir-config-f2e57.firebaseapp.com", projectId: "fir-config-f2e57", storageBucket: "fir-config-f2e57.firebasestorage.app" };
-const app = initializeApp(FB); const db = getFirestore(app); const storage = getStorage(app);
+const FB = { 
+  apiKey: "AIzaSyC103Q-v31-z7nHnnM8KpIZbrrzjrGgGJ4", 
+  authDomain: "fir-config-f2e57.firebaseapp.com", 
+  projectId: "fir-config-f2e57", 
+  storageBucket: "fir-config-f2e57.firebasestorage.app" 
+};
+const app = initializeApp(FB); 
+const db = getFirestore(app); 
+const storage = getStorage(app);
 
 const $ = id => document.getElementById(id);
 let imgFile = null;
@@ -126,27 +151,36 @@ window.go = n => {
 // 圖片預覽
 window.previewImg = i => {
   imgFile = i.files[0];
+  if (!imgFile) return;
   const r = new FileReader();
   r.onload = e => { $('img-prev').src = e.target.result; $('img-prev').style.display = 'block'; };
   r.readAsDataURL(imgFile);
 };
 
-// 儲存邏輯 (Debug 已整合)
+// 儲存邏輯
 $('btn-save').onclick = async () => {
   const n = $('pf-name').value;
   const p = parseFloat($('pf-price').value);
-  if(!n || !p) return alert('請填寫名稱與售價');
+  
+  if(!n || isNaN(p)) return alert('請務必填寫「商品名稱」與「售價」');
 
-  $('btn-save').disabled = true; $('btn-save').textContent = '上傳中...';
+  $('btn-save').disabled = true; 
+  $('btn-save').textContent = '上傳中，請稍候...';
 
   try {
     let url = '';
+    // 處理圖片上傳
     if(imgFile) {
       const path = `products/${Date.now()}_${imgFile.name}`;
       const task = await uploadBytesResumable(ref(storage, path), imgFile);
       url = await getDownloadURL(task.ref);
     }
 
+    // 處理照護技巧 (將字串用逗號拆分成陣列)
+    const rawTips = $('pf-tips').value;
+    const tipsArray = rawTips ? rawTips.split(',').map(s => s.trim()).filter(s => s !== "") : [];
+
+    // 整理要寫入 Firebase 的資料包
     const data = {
       name: n,
       category: $('pf-category').value,
@@ -159,32 +193,60 @@ $('btn-save').onclick = async () => {
       petSafe: $('pf-petSafe').checked,
       active: $('pf-active').checked,
       desc: $('pf-desc').value,
+      // 🌿 新增的照護資訊
+      species: $('pf-species').value,
+      careSun: $('pf-sun').value,
+      careWater: $('pf-water').value,
+      careTemp: $('pf-temp').value,
+      tips: tipsArray,
       updatedAt: serverTimestamp()
     };
 
+    // 寫入資料庫
     await addDoc(collection(db, 'products'), data);
-    alert('✅ 商品已同步至前台！');
+    
+    alert('✅ 商品已成功新增，並同步至前台與照護助手！');
+    
+    // 清空表單
+    document.querySelectorAll('.fi').forEach(el => el.value = '');
+    $('pf-category').value = 'beginner';
+    $('pf-stock').value = '10';
+    $('pf-emoji').value = '🌿';
+    $('img-prev').style.display = 'none';
+    imgFile = null;
+    
     go('products');
-  } catch(e) { alert('儲存失敗：' + e.message); }
-  finally { $('btn-save').disabled = false; $('btn-save').textContent = '儲存並發布商品'; }
+  } catch(e) { 
+    alert('儲存失敗：' + e.message); 
+  } finally { 
+    $('btn-save').disabled = false; 
+    $('btn-save').textContent = '儲存並發布商品'; 
+  }
 };
 
 // 實時監聽：同步數據與 KPI
 onSnapshot(collection(db, 'products'), s => {
   const prods = s.docs.map(d => ({id:d.id, ...d.data()}));
+  
+  // 更新儀表板數字
   $('kpi-pr').textContent = prods.length;
   $('kpi-out').textContent = prods.filter(x => x.stock <= 0).length;
 
+  // 更新商品列表表格
   $('p-body').innerHTML = prods.map(x => `
     <tr>
-      <td>${x.name} <br> <small style="color:#888">${translateCat(x.category)}</small></td>
-      <td>NT$ ${x.price}</td>
-      <td>${x.stock}</td>
+      <td>
+        <strong style="color:var(--deep)">${x.name}</strong><br>
+        <small style="color:#888">${translateCat(x.category)}</small>
+      </td>
+      <td style="font-family:var(--font-mono)">NT$ ${x.price}</td>
+      <td style="font-family:var(--font-mono)">${x.stock}</td>
       <td>${x.stock <= 0 ? '<span class="tag t-out">缺貨</span>' : '<span class="tag t-on">供應中</span>'}</td>
     </tr>
   `).join('');
 });
 
+// 分類翻譯包
 function translateCat(c) {
   const map = { beginner: '🌱 新手', collector: '🪴 玩家', 'media-tools': '🪣 介質' };
   return map[c] || c;
