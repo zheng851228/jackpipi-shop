@@ -99,7 +99,7 @@ let currentCategory = '';
 
 // 🟢 啟動監聽
 function init() {
-  const q = query(collection(db, "products"), where("active", "==", true), orderBy("updatedAt", "desc"));
+  const q = query(collection(db, "products"), where("active", "==", true));
   
   onSnapshot(q, (snapshot) => {
     allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
