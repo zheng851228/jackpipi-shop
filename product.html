@@ -1,8 +1,8 @@
 <script type="module">
+// ── 1. 引入 Firebase SDK (確保路徑正確) ──
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ── 1. Firebase 配置 (與您的後台一致) ──
 const firebaseConfig = {
   apiKey: "AIzaSyC103Q-v31-z7nHnnM8KpIZbrrzjrGgGJ4",
   authDomain: "fir-config-f2e57.firebaseapp.com",
@@ -12,70 +12,88 @@ const firebaseConfig = {
   appId: "1:860181486529:web:6f7053a9141694afc66d40"
 };
 
+// ── 2. 初始化與全域變數 ──
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ── 2. 全域狀態管理 ──
-let dbProducts = []; 
+let dbProducts = []; [span_1](start_span)// 存放從資料庫抓回來的真實資料[span_1](end_span)
 let cart = JSON.parse(localStorage.getItem('jk_cart') || '[]');
+
+// 初始化篩選狀態：攔截網址參數 ?filter=xxx
 let state = { 
   cat: new URLSearchParams(window.location.search).get('filter') || '', 
   diff: '', pet: false, sale: false, feat: false, sort: 'default' 
 };
 
-// ── 3. 實時連動：監聽資料庫變化 ──
-function initApp() {
+// ── 3. 實時連動監聽 ──
+function initProductLoader() {
+  const grid = document.getElementById('product-grid');
+  if (!grid) return; [span_2](start_span)// 防錯：若找不到容器則停止執行，避免空白[span_2](end_span)
+
+  grid.innerHTML = '<div class="empty-state">🌿 正在為您搬運植物中...</div>';
+
+  [span_3](start_span)[span_4](start_span)// 只抓取「已上架」的商品[span_3](end_span)[span_4](end_span)
   const q = query(collection(db, "products"), where("active", "==", true));
-  
-  [span_7](start_span)[span_8](start_span)// 當資料庫有變動時，自動觸發畫面重新渲染[span_7](end_span)[span_8](end_span)
+
   onSnapshot(q, (snapshot) => {
-    dbProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    updateSidebarCounts();
-    renderProducts();
-    updateCartCount();
+    try {
+      dbProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      if (dbProducts.length === 0) {
+        grid.innerHTML = '<div class="empty-state">目前植物室裡空空如也，請先到後台新增商品。</div>';
+      } else {
+        updateSidebarCounts();
+        renderProducts();
+      }
+      updateCartCount();
+    } catch (err) {
+      console.error("渲染發生錯誤:", err);
+      grid.innerHTML = '<div class="empty-state">植物載入失敗，請檢查網路連線。</div>';
+    }
   });
 }
 
-// ── 4. 核心渲染邏輯 ──
+// ── 4. 渲染邏輯 (支援 圖片/Emoji/特價/庫存) ──
 function renderProducts() {
   const grid = document.getElementById('product-grid');
   let list = [...dbProducts];
 
-  [span_9](start_span)// 篩選器：類別、難度、寵物友善[span_9](end_span)
+  [span_5](start_span)[span_6](start_span)// A. 篩選邏輯[span_5](end_span)[span_6](end_span)
   if (state.cat) list = list.filter(p => p.category === state.cat);
   if (state.diff) list = list.filter(p => p.difficulty == state.diff);
   if (state.pet) list = list.filter(p => p.petSafe === true);
   if (state.sale) list = list.filter(p => p.price < (p.originalPrice || p.price));
   if (state.feat) list = list.filter(p => p.featured === true);
 
-  [span_10](start_span)// 排序處理[span_10](end_span)
+  [span_7](start_span)// B. 排序邏輯[span_7](end_span)
   if (state.sort === 'price-asc') list.sort((a, b) => a.price - b.price);
   else if (state.sort === 'price-desc') list.sort((a, b) => b.price - a.price);
   else if (state.sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
 
   document.getElementById('product-count').textContent = `顯示 ${list.length} 件商品`;
 
+  [span_8](start_span)[span_9](start_span)// C. 產生 HTML[span_8](end_span)[span_9](end_span)
   grid.innerHTML = list.map((p, i) => {
     const isSale = p.originalPrice > p.price;
-    [span_11](start_span)const isOut = p.stock <= 0; // 庫存判定[span_11](end_span)
+    const isOut = p.stock <= 0;
     
-    const mediaContent = p.imageUrl 
-      ? `<img src="${p.imageUrl}" alt="${p.name}">`
-      : `<div class="emoji-placeholder">${p.emoji || '🌿'}</div>`;
+    const mediaHtml = p.imageUrl 
+      ? `<img src="${p.imageUrl}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover;">`
+      : `<div style="font-size:3.8rem; display:flex; align-items:center; justify-content:center; height:100%; background:var(--sand-light)">${p.emoji || '🌿'}</div>`;
 
     return `
       <article class="product-card ${isOut ? 'sold-out' : ''}" style="animation-delay: ${i * 50}ms">
         <div class="card-img">
-          ${mediaContent}
-          ${isOut ? '<span class="badge badge--sold">已售罄</span>' : (p.featured ? '<span class="badge badge--hot">熱銷</span>' : (isSale ? '<span class="badge badge--sale">特價</span>' : ''))}
+          ${mediaHtml}
+          ${isOut ? '<span class="badge" style="background:#888">已售罄</span>' : (p.featured ? '<span class="badge badge--hot">熱銷</span>' : (isSale ? '<span class="badge badge--sale">特價</span>' : ''))}
           ${p.petSafe ? '<span class="pet-safe">🐾 友善</span>' : ''}
         </div>
         <div class="card-body">
           <p class="card-cat">${translateCat(p.category)}</p>
           <h3 class="card-name">${p.name}</h3>
-          <p class="card-desc">${p.desc || '這株植物正在等待喜愛它的人...'}</p>
+          <p class="card-desc">${p.desc || '暫無描述。'}</p>
           <div class="card-footer">
-            <p class="card-price">NT$ ${p.price.toLocaleString()}${isSale ? `<del>NT$ ${p.originalPrice}</del>` : ''}</p>
+            <p class="card-price">NT$ ${p.price.toLocaleString()}${isSale ? `<del style="color:#bbb; font-size:0.8em; margin-left:5px">NT$ ${p.originalPrice}</del>` : ''}</p>
             <button class="btn-cart" onclick="addToCart('${p.id}')" ${isOut ? 'disabled' : ''}>
               ${isOut ? '補貨中' : '加入'}
             </button>
@@ -85,20 +103,39 @@ function renderProducts() {
   }).join('');
 }
 
+// ── 5. 輔助功能 ──
 function translateCat(c) {
   const map = { beginner: '🌱 新手入門', collector: '🪴 資深玩家', 'media-tools': '🪣 介質工具' };
   return map[c] || c;
 }
 
-[span_12](start_span)// 動態統計側邊欄數量[span_12](end_span)
 function updateSidebarCounts() {
   const counts = { all: dbProducts.length };
   dbProducts.forEach(p => { counts[p.category] = (counts[p.category] || 0) + 1; });
   document.querySelectorAll('[data-cat]').forEach(el => {
+    const cat = el.dataset.cat;
     const countEl = el.querySelector('.filter-option__count');
-    if (countEl) countEl.textContent = counts[el.dataset.cat || 'all'] || 0;
+    if (countEl) countEl.textContent = counts[cat || 'all'] || 0;
   });
 }
 
-initApp();
+// ── 啟動 ──
+initProductLoader();
+
+[span_10](start_span)// 將 addToCart 暴露給全域 window 物件，否則 onclick 會找不到[span_10](end_span)
+window.addToCart = (id) => {
+  const p = dbProducts.find(x => x.id === id);
+  if (!p) return;
+  const exist = cart.find(x => x.id === id);
+  if (exist) exist.qty++; else cart.push({ ...p, qty: 1 });
+  localStorage.setItem('jk_cart', JSON.stringify(cart));
+  alert(`✦ ${p.name} 已加入購物車`);
+  updateCartCount();
+};
+
+function updateCartCount() {
+  const count = cart.reduce((sum, item) => sum + item.qty, 0);
+  const el = document.getElementById('cart-count');
+  if (el) { el.textContent = count; el.style.display = count > 0 ? 'flex' : 'none'; }
+}
 </script>
