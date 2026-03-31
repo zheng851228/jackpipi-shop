@@ -3,278 +3,191 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>後台管理 — 陽光花園 jackpipi</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<title>管理後台 — 陽光花園 jackpipi</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=DM+Mono&display=swap" rel="stylesheet"/>
 <style>
-:root{
-  --moss:#6B7C5C;--forest:#3D5040;--deep:#1e2e22;--deep2:#253228;
-  --sand:#E8DDD0;--sand-light:#F5F0EA;--blush:#D4A8A0;--terra:#B5704F;
-  --cream:#FAF7F2;--bg:#f2f4f0;--white:#fff;--text:#1e2a1f;
-  --muted:#6b7a6c;--light:#a8b5a8;--border:#e0e8df;
-  --sh-sm:0 1px 4px rgba(30,46,34,.06),0 4px 16px rgba(30,46,34,.06);
-  --sh-md:0 4px 12px rgba(30,46,34,.08),0 12px 32px rgba(30,46,34,.08);
-  --r:10px;--r-lg:14px;--r-full:999px;
-  --serif:'Noto Serif TC',serif;--mono:'DM Mono',monospace;
-  --ease:.22s cubic-bezier(.4,0,.2,1);
-  --sidebar:240px;--topbar:60px;
-  --ok:#4d9155;--err:#b84c41;--warn:#c49a2a;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--serif);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-a{color:inherit;text-decoration:none}
-button{font-family:inherit;cursor:pointer;border:none;background:none}
-input,select,textarea{font-family:inherit;font-size:inherit}
-
-/* LOADING & UI */
-#loading-screen{position:fixed;inset:0;background:var(--deep);display:flex;align-items:center;justify-content:center;z-index:2000;flex-direction:column;gap:14px;transition:opacity .3s}
-.ls-icon{font-size:2.4rem;animation:lsPulse 1.5s infinite}
-@keyframes lsPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.9)}}
-#login-screen{display:none;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--deep) 0%,#2d4a32 100%)}
-.lc{background:var(--white);border-radius:20px;padding:44px 40px;width:90%;max-width:400px;box-shadow:0 32px 80px rgba(0,0,0,.25)}
-#admin{display:none}#admin.on{display:block}
-#sb-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:90;display:none;backdrop-filter:blur(2px)}
-#sb-overlay.open{display:block}
-.sb{width:var(--sidebar);background:var(--deep);color:var(--cream);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .3s ease}
-.main{margin-left:var(--sidebar);min-height:100vh;display:flex;flex-direction:column;transition:margin .3s ease}
-.topbar{height:var(--topbar);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:50;gap:12px}
-.menu-btn{display:none;width:36px;height:36px;align-items:center;justify-content:center;border-radius:8px;border:1.5px solid var(--border);color:var(--muted);font-size:1.1rem}
-.card{background:var(--white);border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--sh-sm);overflow:hidden;margin-bottom:16px}
-.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px}
-.kpi{background:var(--white);border-radius:var(--r-lg);padding:18px 20px;border:1px solid var(--border);text-align:center}
-.kpi-num{font-family:var(--mono);font-size:1.8rem;color:var(--forest);font-weight:700}
-.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 18px;border-radius:var(--r-full);font-size:.8rem;cursor:pointer;border:none}
-.btn-p{background:var(--forest);color:var(--cream)}
-.btn-o{border:1.5px solid var(--border);color:var(--forest);background:var(--white)}
-.btn-r{background:var(--err);color:#fff}
-.tag{padding:3px 8px;border-radius:var(--r-full);font-size:.7rem;font-family:var(--mono)}
-.t-on{background:#e8f5e8;color:#3d7a40}.t-off{background:#f5f5f5;color:#888}
-.fi{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--r);font-size:.88rem;background:#fafbfa;outline:none}
-.drop-zone{border:2px dashed var(--border);border-radius:var(--r-lg);padding:24px;text-align:center;cursor:pointer;background:#fafbfa}
-.img-prev-el{width:100%;max-height:200px;object-fit:cover;border-radius:var(--r);display:none}
-.img-prev-el.show{display:block}
-.img-prog{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;display:none}
-.img-prog-bar{height:100%;background:var(--moss);width:0%;transition:width .3s}
-
-@media(max-width:900px){
-  .sb{transform:translateX(-100%)}.sb.open{transform:translateX(0)}
-  #sb-overlay.open{display:block}.main{margin-left:0}.menu-btn{display:flex}
-}
+  :root {
+    --forest: #3D5040; --moss: #6B7C5C; --deep: #1e2e22; --sand: #E8DDD0;
+    --cream: #FAF7F2; --bg: #f2f4f0; --white: #fff; --err: #b84c41;
+    --border: #e0e8df; --r-lg: 14px;
+  }
+  body { font-family: 'Noto Serif TC', serif; background: var(--bg); color: #1e2a1f; margin: 0; }
+  .sb { width: 240px; background: var(--deep); color: var(--cream); position: fixed; height: 100vh; padding: 20px; }
+  .main { margin-left: 240px; padding: 20px; min-height: 100vh; }
+  .card { background: var(--white); border-radius: var(--r-lg); border: 1px solid var(--border); padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  .fi { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 8px; margin-top: 6px; margin-bottom: 15px; outline: none; }
+  .btn { padding: 12px 24px; border-radius: 99px; border: none; cursor: pointer; font-weight: 700; transition: 0.3s; }
+  .btn-p { background: var(--forest); color: var(--cream); }
+  .btn-p:hover { background: var(--deep); transform: translateY(-2px); }
+  .tag { padding: 4px 10px; border-radius: 99px; font-size: 12px; font-family: 'DM Mono'; }
+  .t-on { background: #e8f5e8; color: #3d7a40; }
+  .t-out { background: #fdeaea; color: #b84c41; }
+  .pg { display: none; } .pg.on { display: block; }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  th { text-align: left; padding: 12px; background: #f8faf8; border-bottom: 2px solid var(--border); }
+  td { padding: 12px; border-bottom: 1px solid var(--border); }
+  .img-prev { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; background: #eee; margin-bottom: 10px; display: none; }
 </style>
 </head>
 <body>
 
-<div id="loading-screen"><div class="ls-icon">🌿</div></div>
-
-<div id="login-screen">
-  <div class="lc">
-    <div style="text-align:center;margin-bottom:24px"><div style="font-size:2rem">🌿</div><h2>陽光花園後台</h2></div>
-    <div id="lc-msg" style="padding:10px;display:none;border-radius:8px;margin-bottom:15px"></div>
-    <div style="margin-bottom:15px"><label style="font-size:.7rem;color:var(--muted)">EMAIL</label><input class="fi" id="a-email" type="email"></div>
-    <div style="margin-bottom:20px"><label style="font-size:.7rem;color:var(--muted)">PASSWORD</label><input class="fi" id="a-pass" type="password"></div>
-    <button class="btn btn-p" id="btn-login" style="width:100%;padding:14px">登入系統</button>
-  </div>
-</div>
-
 <div id="admin">
-  <div id="sb-overlay" onclick="toggleSB(false)"></div>
-  <aside class="sb" id="main-sb">
-    <div style="padding:30px 20px"><h2>陽光花園 🌿</h2></div>
-    <nav style="flex:1;padding:10px">
-      <div class="sb-item on" data-pg="dashboard" onclick="go('dashboard')">🏠 儀表板</div>
-      <div class="sb-item" data-pg="products" onclick="go('products')">🌿 商品列表</div>
-      <div class="sb-item" data-pg="add-product" onclick="go('add-product')">➕ 新增商品</div>
-      <div class="sb-item" data-pg="orders" onclick="go('orders')">📋 訂單管理</div>
+  <aside class="sb">
+    <h2>陽光花園 🌿</h2>
+    <nav style="margin-top:40px">
+      <p onclick="go('dashboard')" style="cursor:pointer">🏠 儀表板</p>
+      <p onclick="go('products')" style="cursor:pointer">🌿 商品列表</p>
+      <p onclick="go('add-product')" style="cursor:pointer">➕ 新增商品</p>
+      <hr style="opacity:0.2; margin: 20px 0;">
+      <button onclick="handleLogout()" style="color:#D4A8A0; background:none; border:none; cursor:pointer;">🚪 登出系統</button>
     </nav>
-    <div style="padding:20px"><button onclick="handleLogout()" style="color:var(--blush)">🚪 登出系統</button></div>
   </aside>
 
-  <div class="main">
-    <div class="topbar">
-      <button class="menu-btn" onclick="toggleSB(true)">☰</button>
-      <div class="tb-bc">Admin › <b id="tb-title">儀表板</b></div>
-    </div>
-    <div class="content">
-      <div class="pg on" id="pg-dashboard">
-        <div class="kpi-row">
-          <div class="kpi"><div class="kpi-num" id="kpi-o">0</div><div class="kpi-label">總訂單</div></div>
-          <div class="kpi"><div class="kpi-num" id="kpi-pr">0</div><div class="kpi-label">上架商品</div></div>
-        </div>
-        <div class="card"><div style="padding:20px;color:var(--muted)">歡迎回來！點擊左側選單開始管理。</div></div>
-      </div>
-
-      <div class="pg" id="pg-products">
-        <div class="card">
-          <div style="padding:15px;display:flex;justify-content:space-between;align-items:center;background:#fafbfa;border-bottom:1px solid var(--border)">
-            <h3 style="font-size:.9rem">所有商品</h3>
-            <button class="btn btn-p btn-sm" onclick="go('add-product')">+ 新增</button>
-          </div>
-          <div style="overflow-x:auto">
-            <table style="width:100%;border-collapse:collapse;min-width:500px">
-              <thead><tr style="text-align:left;background:#f8faf8"><th style="padding:15px">商品</th><th style="padding:15px">售價</th><th style="padding:15px">庫存</th><th style="padding:15px">狀態</th><th style="padding:15px">操作</th></tr></thead>
-              <tbody id="p-body"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div class="pg" id="pg-add-product">
-        <div class="card" style="max-width:600px;margin:0 auto">
-          <div style="padding:24px">
-            <div class="img-tab-row">
-              <button class="img-tab on" id="tab-upload" onclick="switchTab('upload')">📁 上傳</button>
-              <button class="img-tab" id="tab-url" onclick="switchTab('url')">🔗 網址</button>
-              <button class="img-tab" id="tab-emoji" onclick="switchTab('emoji')">😊 Emoji</button>
-            </div>
-            
-            <div id="panel-upload">
-              <div class="drop-zone" onclick="$('pf-file').click()">
-                <input type="file" id="pf-file" accept="image/*" style="display:none" onchange="onFileChange(this)">
-                <img class="img-prev-el" id="img-prev" src="">
-                <div id="img-ph">點擊上傳圖片</div>
-              </div>
-              <div class="img-prog" id="img-prog" style="display:none"><div class="img-prog-bar" id="img-prog-bar"></div></div>
-            </div>
-            <div id="panel-url" style="display:none"><input class="fi" id="pf-url" placeholder="圖片網址..." oninput="onUrlInput(this.value)"></div>
-            <div id="panel-emoji" style="display:none"><input class="fi" id="pf-emoji" placeholder="Emoji (如 🌵)"></div>
-
-            <div style="margin-top:20px"><label style="font-size:.7rem">商品名稱 *</label><input class="fi" id="pf-name"></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px">
-              <div><label style="font-size:.7rem">售價 *</label><input class="fi" type="number" id="pf-price"></div>
-              <div><label style="font-size:.7rem">庫存</label><input class="fi" type="number" id="pf-stock"></div>
-            </div>
-            <div style="margin-top:15px"><label><input type="checkbox" id="pf-active" checked> 上架中</label></div>
-            <button class="btn btn-p" id="btn-save" style="width:100%;padding:15px;margin-top:25px;font-size:1rem">儲存並發布</button>
-          </div>
-        </div>
+  <main class="main">
+    <div class="pg on" id="pg-dashboard">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+        <div class="card"><h3>總商品數</h3><h1 id="kpi-pr">0</h1></div>
+        <div class="card"><h3>待補貨商品</h3><h1 id="kpi-out" style="color:var(--err)">0</h1></div>
       </div>
     </div>
-  </div>
+
+    <div class="pg" id="pg-products">
+      <div class="card">
+        <h3>目前上架清單</h3>
+        <table>
+          <thead><tr><th>商品</th><th>售價</th><th>庫存</th><th>狀態</th></tr></thead>
+          <tbody id="p-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pg" id="pg-add-product">
+      <div class="card" style="max-width:700px;">
+        <h3>新增植栽選品</h3>
+        <div id="panel-upload">
+          <img class="img-prev" id="img-prev">
+          <input type="file" id="pf-file" accept="image/*" onchange="previewImg(this)">
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:20px;">
+          <div><label>商品名稱 *</label><input class="fi" id="pf-name" placeholder="如：乙女心"></div>
+          <div>
+            <label>分類 *</label>
+            <select class="fi" id="pf-category">
+              <option value="beginner">🌱 新手入門</option>
+              <option value="collector">🪴 資深玩家</option>
+              <option value="media-tools">🪣 介質與工具</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+          <div><label>售價 *</label><input class="fi" type="number" id="pf-price"></div>
+          <div><label>原始價格 (特價標籤用)</label><input class="fi" type="number" id="pf-originalPrice"></div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+          <div><label>庫存數量 *</label><input class="fi" type="number" id="pf-stock" value="10"></div>
+          <div><label>Emoji (若無圖片)</label><input class="fi" id="pf-emoji" value="🌿"></div>
+        </div>
+
+        <div style="margin: 15px 0; display:flex; gap:20px;">
+          <label><input type="checkbox" id="pf-featured"> 🔥 熱銷精選</label>
+          <label><input type="checkbox" id="pf-petSafe"> 🐾 寵物友善</label>
+          <label><input type="checkbox" id="pf-active" checked> 立即上架</label>
+        </div>
+
+        <label>商品描述</label>
+        <textarea class="fi" id="pf-desc" rows="4" placeholder="介紹這株植物的特色..."></textarea>
+
+        <button class="btn btn-p" id="btn-save" style="width:100%">儲存並發布商品</button>
+      </div>
+    </div>
+  </main>
 </div>
-
-<div class="toasts" id="toasts"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, addDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-const FB={apiKey:"AIzaSyC103Q-v31-z7nHnnM8KpIZbrrzjrGgGJ4",authDomain:"fir-config-f2e57.firebaseapp.com",projectId:"fir-config-f2e57",storageBucket:"fir-config-f2e57.firebasestorage.app",messagingSenderId:"860181486529",appId:"1:860181486529:web:6f7053a9141694afc66d40"};
-const ADMINS=["lucky851228@gmail.com"];
-const app=initializeApp(FB); const auth=getAuth(app); const db=getFirestore(app); const storage=getStorage(app);
-const $=id=>document.getElementById(id);
+const FB = { apiKey: "AIzaSyC103Q-v31-z7nHnnM8KpIZbrrzjrGgGJ4", authDomain: "fir-config-f2e57.firebaseapp.com", projectId: "fir-config-f2e57", storageBucket: "fir-config-f2e57.firebasestorage.app" };
+const app = initializeApp(FB); const db = getFirestore(app); const storage = getStorage(app);
 
-let imgFile=null, imgTab='upload', allProds=[];
+const $ = id => document.getElementById(id);
+let imgFile = null;
 
-window.toggleSB=s=>{$('main-sb').classList.toggle('open',s);$('sb-overlay').classList.toggle('open',s)};
-window.go=n=>{
-  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('on'));
+// 路由控制
+window.go = n => {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
   $(`pg-${n}`).classList.add('on');
-  document.querySelector(`[data-pg="${n}"]`)?.classList.add('on');
-  $('tb-title').textContent=n; toggleSB(false);
-  if(n==='dashboard')loadDash(); 
-  if(n==='products')loadProducts(); 
-  if(n==='add-product')resetForm();
 };
 
-onAuthStateChanged(auth, u=>{
-  $('loading-screen').style.opacity='0'; setTimeout(()=>$('loading-screen').style.display='none',300);
-  if(u && ADMINS.includes(u.email)){
-    $('login-screen').style.display='none'; $('admin').classList.add('on'); 
-    $('sb-name').textContent = u.email; loadDash();
-  } else {
-    if(u) signOut(auth); $('login-screen').style.display='flex'; $('admin').classList.remove('on');
-  }
-});
-
-$('btn-login').onclick=async()=>{
-    const e=$('a-email').value, p=$('a-pass').value;
-    try{ await signInWithEmailAndPassword(auth,e,p); }catch(err){ alert('登入失敗'); }
-};
-window.handleLogout = () => signOut(auth);
-
-window.switchTab=t=>{
-  imgTab=t; ['upload','url','emoji'].forEach(x=>{$(`panel-${x}`).style.display=(x===t?'block':'none');$(`tab-${x}`).classList.toggle('on',x===t)});
+// 圖片預覽
+window.previewImg = i => {
+  imgFile = i.files[0];
+  const r = new FileReader();
+  r.onload = e => { $('img-prev').src = e.target.result; $('img-prev').style.display = 'block'; };
+  r.readAsDataURL(imgFile);
 };
 
-window.onFileChange=i=>{
-  imgFile=i.files[0]; if(!imgFile) return;
-  const r=new FileReader(); r.onload=e=>{ $('img-prev').src=e.target.result; $('img-prev').classList.add('show'); $('img-ph').style.display='none'; }; r.readAsDataURL(imgFile);
-};
+// 儲存邏輯 (Debug 已整合)
+$('btn-save').onclick = async () => {
+  const n = $('pf-name').value;
+  const p = parseFloat($('pf-price').value);
+  if(!n || !p) return alert('請填寫名稱與售價');
 
-$('btn-save').onclick=async()=>{
-  const n=$('pf-name').value; const p=parseFloat($('pf-price').value);
-  if(!n||!p) return alert('請填寫必填欄位');
-  $('btn-save').disabled=true; $('btn-save').textContent='處理中...';
+  $('btn-save').disabled = true; $('btn-save').textContent = '上傳中...';
 
   try {
-    let finalUrl = '';
-    if(imgTab==='upload' && imgFile){
-      const path=`products/${Date.now()}_${imgFile.name}`;
-      const task=uploadBytesResumable(ref(storage, path), imgFile);
-      finalUrl = await new Promise((res,rej)=>{
-        task.on('state_changed',s=>{
-          const pct=(s.bytesTransferred/s.totalBytes)*100; $('img-prog').style.display='block'; $('img-prog-bar').style.width=pct+'%';
-        },rej,async()=>res(await getDownloadURL(task.snapshot.ref)));
-      });
-    } else if(imgTab==='url'){ finalUrl=$('pf-url').value; }
-
-    const data={
-      name:n, price:p, stock:parseInt($('pf-stock').value)||0, 
-      emoji:$('pf-emoji').value||'🌿', imageUrl:finalUrl, 
-      imageType:imgTab, active:$('pf-active').checked, updatedAt:serverTimestamp()
-    };
-
-    await addDoc(collection(db,'products'), data);
-    alert('✅ 商品新增成功！'); go('products');
-  } catch(e){ alert('失敗：'+e.message); }
-  finally{ $('btn-save').disabled=false; $('btn-save').textContent='儲存商品'; $('img-prog').style.display='none'; }
-};
-
-async function loadProducts(){
-  const body = $('p-body');
-  body.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px">載入中...</td></tr>';
-  try {
-    const s = await getDocs(collection(db, 'products'));
-    allProds = s.docs.map(d=>({id:d.id, ...d.data()}));
-    
-    if(allProds.length === 0) {
-      body.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px">尚無商品</td></tr>';
-      return;
+    let url = '';
+    if(imgFile) {
+      const path = `products/${Date.now()}_${imgFile.name}`;
+      const task = await uploadBytesResumable(ref(storage, path), imgFile);
+      url = await getDownloadURL(task.ref);
     }
 
-    body.innerHTML = allProds.map(x => `
-      <tr style="border-bottom:1px solid #eee">
-        <td style="padding:15px">
-          <div style="display:flex;align-items:center;gap:10px">
-            ${x.imageUrl ? `<img src="${x.imageUrl}" style="width:36px;height:36px;object-fit:cover;border-radius:6px">` : `<span style="font-size:1.4rem">${x.emoji||'🌿'}</span>`}
-            <b style="font-size:.85rem">${x.name}</b>
-          </div>
-        </td>
-        <td style="padding:15px">NT$${(x.price||0).toLocaleString()}</td>
-        <td style="padding:15px">${x.stock||0}</td>
-        <td style="padding:15px">${x.active ? '<span class="tag t-on">上架中</span>' : '<span class="tag t-off">已下架</span>'}</td>
-        <td style="padding:15px"><button class="btn btn-o btn-sm" onclick="alert('商品ID: ${x.id}')">🔍</button></td>
-      </tr>
-    `).join('');
-    
-    $('kpi-pr').textContent = allProds.length;
-  } catch(err) {
-    body.innerHTML = `<tr><td colspan="5" style="color:red;text-align:center">載入失敗: ${err.message}</td></tr>`;
-  }
-}
+    const data = {
+      name: n,
+      category: $('pf-category').value,
+      price: p,
+      originalPrice: parseFloat($('pf-originalPrice').value) || p,
+      stock: parseInt($('pf-stock').value) || 0,
+      emoji: $('pf-emoji').value,
+      imageUrl: url,
+      featured: $('pf-featured').checked,
+      petSafe: $('pf-petSafe').checked,
+      active: $('pf-active').checked,
+      desc: $('pf-desc').value,
+      updatedAt: serverTimestamp()
+    };
 
-async function loadDash(){
-  const [o,p] = await Promise.all([getDocs(collection(db, 'orders')), getDocs(collection(db, 'products'))]);
-  $('kpi-o').textContent = o.size;
-  $('kpi-pr').textContent = p.size;
-}
+    await addDoc(collection(db, 'products'), data);
+    alert('✅ 商品已同步至前台！');
+    go('products');
+  } catch(e) { alert('儲存失敗：' + e.message); }
+  finally { $('btn-save').disabled = false; $('btn-save').textContent = '儲存並發布商品'; }
+};
 
-function resetForm(){
-  $('pf-name').value=''; $('pf-price').value=''; $('pf-stock').value='';
-  $('img-prev').src=''; $('img-prev').classList.remove('show');
-  $('img-ph').style.display='block'; imgFile=null;
+// 實時監聽：同步數據與 KPI
+onSnapshot(collection(db, 'products'), s => {
+  const prods = s.docs.map(d => ({id:d.id, ...d.data()}));
+  $('kpi-pr').textContent = prods.length;
+  $('kpi-out').textContent = prods.filter(x => x.stock <= 0).length;
+
+  $('p-body').innerHTML = prods.map(x => `
+    <tr>
+      <td>${x.name} <br> <small style="color:#888">${translateCat(x.category)}</small></td>
+      <td>NT$ ${x.price}</td>
+      <td>${x.stock}</td>
+      <td>${x.stock <= 0 ? '<span class="tag t-out">缺貨</span>' : '<span class="tag t-on">供應中</span>'}</td>
+    </tr>
+  `).join('');
+});
+
+function translateCat(c) {
+  const map = { beginner: '🌱 新手', collector: '🪴 玩家', 'media-tools': '🪣 介質' };
+  return map[c] || c;
 }
 </script>
 </body>
