@@ -8,33 +8,54 @@
   <link rel="stylesheet" href="global.css" />
   
   <style>
-    /* 這裡只保留 product.html 專屬的「商品網格與側邊欄」排版樣式 */
-    .shop-layout { display:grid; grid-template-columns:240px 1fr; gap:48px; padding:calc(var(--nav-h) + 40px) 0 100px; align-items:start; }
+    /* ── 頁面專屬佈局 ── */
+    .shop-layout { display: grid; grid-template-columns: 240px 1fr; gap: 48px; padding: calc(var(--nav-h) + 40px) 0 100px; }
     
-    /* 側邊欄篩選器 */
-    .sidebar-title { font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:8px; }
-    .filter-btn { display:block; width:100%; text-align:left; padding:8px 12px; margin-bottom:4px; border-radius:var(--r-sm); font-size:0.86rem; color:var(--text-muted); transition:var(--t) var(--ease); }
-    .filter-btn:hover, .filter-btn.active { background:var(--forest); color:var(--cream); }
+    /* 側邊篩選器 */
+    .sidebar-title { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .filter-btn { display: block; width: 100%; text-align: left; padding: 10px 14px; margin-bottom: 6px; border-radius: var(--r-sm); font-size: 0.88rem; color: var(--text-muted); transition: var(--t); }
+    .filter-btn:hover, .filter-btn.active { background: var(--forest); color: var(--cream); }
 
     /* 商品網格 */
-    .product-toolbar { display:flex; justify-content:space-between; margin-bottom:24px; }
-    #product-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:24px; }
-    .product-card { background:var(--white); border-radius:var(--r-lg); overflow:hidden; border:1px solid var(--border); display:flex; flex-direction:column; transition:transform var(--t) var(--ease), box-shadow var(--t) var(--ease); position:relative; }
-    .product-card:hover { transform:translateY(-5px); box-shadow:var(--shadow-md); }
+    .product-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+    #product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 32px; }
     
-    .card-img { aspect-ratio:1/1; background:var(--sand-light); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
-    .card-img img { width:100%; height:100%; object-fit:cover; }
-    .card-body { padding:18px; display:flex; flex-direction:column; flex:1; }
-    
-    .card-cat { font-size:0.7rem; color:var(--moss); font-family:var(--font-mono); margin-bottom:4px; }
-    .card-name { font-size:1.1rem; font-weight:700; color:var(--deep-forest); margin-bottom:8px; }
-    .card-price { font-family:var(--font-mono); color:var(--forest); font-weight:500; margin-top:auto; }
-    
-    .btn-cart { padding:8px 16px; background:var(--forest); color:var(--cream); border-radius:var(--r-full); font-size:0.8rem; transition:background var(--t) var(--ease); }
-    .btn-cart:hover { background:var(--deep-forest); }
-    .btn-cart:disabled { background:var(--text-light); cursor:not-allowed; }
+    /* 🟡 圖片讀取優化樣式 */
+    .card-img { 
+      aspect-ratio: 1/1; 
+      background: #f0f0f0; 
+      display: flex; align-items: center; justify-content: center; 
+      overflow: hidden; position: relative; border-radius: var(--r-lg) var(--r-lg) 0 0;
+      /* 骨架屏動畫 */
+      background: linear-gradient(90deg, #f2f2f2 25%, #e6e6e6 50%, #f2f2f2 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+    }
+    @keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-    @media(max-width:768px){ .shop-layout { grid-template-columns:1fr; } .sidebar { display:none; } }
+    .card-img img { 
+      width: 100%; height: 100%; object-fit: cover; 
+      opacity: 0; /* 初始透明 */
+      transition: opacity 0.8s var(--ease); 
+    }
+    .card-img img.loaded { opacity: 1; } /* 載入後淡入 */
+
+    .product-card { 
+      background: var(--white); border-radius: var(--r-lg); border: 1px solid var(--border); 
+      display: flex; flex-direction: column; transition: var(--t); 
+    }
+    .product-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
+    .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+    .card-name { font-size: 1.15rem; font-weight: 700; color: var(--deep-forest); margin-bottom: 8px; }
+    .card-price { font-family: var(--font-mono); color: var(--forest); font-weight: 500; font-size: 1rem; }
+
+    /* RWD 手機版調整 */
+    @media (max-width: 900px) {
+      .shop-layout { grid-template-columns: 1fr; gap: 32px; }
+      .sidebar { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
+      .sidebar-title { display: none; }
+      .filter-btn { white-space: nowrap; width: auto; border: 1px solid var(--border); }
+    }
   </style>
 </head>
 
@@ -43,22 +64,23 @@
 <div class="container shop-layout">
   
   <aside class="sidebar">
-    <div style="margin-bottom:30px;">
-      <p class="sidebar-title">植物分類</p>
-      <button class="filter-btn active" data-cat="">全部選品</button>
-      <button class="filter-btn" data-cat="beginner">🌱 新手入門</button>
-      <button class="filter-btn" data-cat="collector">🪴 資深玩家</button>
-      <button class="filter-btn" data-cat="media-tools">🪣 介質與工具</button>
-    </div>
+    <p class="sidebar-title">植物分類</p>
+    <button class="filter-btn active" data-cat="">全部植物</button>
+    <button class="filter-btn" data-cat="beginner">🌱 新手入門</button>
+    <button class="filter-btn" data-cat="collector">🪴 資深玩家</button>
+    <button class="filter-btn" data-cat="media-tools">🪣 介質與工具</button>
   </aside>
 
   <main>
     <div class="product-toolbar">
-      <span id="product-count" style="font-size:0.88rem; color:var(--text-muted);">載入中...</span>
+      <h2 style="font-family:var(--font-display); font-weight:300;">探索<em>綠意</em></h2>
+      <span id="product-count" style="font-size:0.8rem; color:var(--text-light); font-family:var(--font-mono);">載入中...</span>
     </div>
     
     <div id="product-grid">
-      <div style="text-align:center; padding:40px; color:var(--text-muted);">連線至植物室中...🌿</div>
+      <div class="product-card" style="height:350px; background:#f9f9f9; opacity:0.5;"></div>
+      <div class="product-card" style="height:350px; background:#f9f9f9; opacity:0.5;"></div>
+      <div class="product-card" style="height:350px; background:#f9f9f9; opacity:0.5;"></div>
     </div>
   </main>
 
@@ -68,71 +90,71 @@
 <script type="module" src="global.js"></script>
 
 <script type="module">
-// 4. 從模組中抽出我們需要的武器
 import { db } from "./firebase-config.js";
 import { Cart, showToast } from "./global.js"; 
-import { collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { collection, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-let dbProducts = [];
+let allProducts = [];
 let currentCategory = '';
 
-// 啟動資料庫監聽
-function initApp() {
-  const grid = document.getElementById('product-grid');
-  const q = query(collection(db, "products"), where("active", "==", true));
+// 🟢 啟動監聽
+function init() {
+  const q = query(collection(db, "products"), where("active", "==", true), orderBy("updatedAt", "desc"));
   
   onSnapshot(q, (snapshot) => {
-    dbProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    renderProducts();
-  }, (error) => {
-    console.error("❌ Firebase 讀取錯誤：", error);
-    grid.innerHTML = `<div style="text-align:center; padding:40px; color:var(--error);">讀取失敗：${error.message}</div>`;
+    allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    render();
+  }, (err) => {
+    console.error("Firebase Error:", err);
+    document.getElementById('product-grid').innerHTML = `<p>讀取失敗，請檢查網路連線。</p>`;
   });
 }
 
-// 渲染畫面
-function renderProducts() {
+// 🟢 渲染邏輯 (整合 Lazy Loading 與 Fade-in)
+function render() {
   const grid = document.getElementById('product-grid');
   const countEl = document.getElementById('product-count');
   
-  let list = dbProducts;
+  let list = allProducts;
   if (currentCategory) {
     list = list.filter(p => p.category === currentCategory);
   }
 
-  countEl.textContent = `顯示 ${list.length} 件商品`;
+  countEl.textContent = `${list.length} ITEMS`;
+
   if (list.length === 0) {
-    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px; color:var(--text-muted);">目前沒有符合條件的植物。</div>';
+    grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; padding:100px 0; color:var(--text-light);">此分類目前沒有商品。</p>`;
     return;
   }
 
   grid.innerHTML = list.map(p => {
     const isOut = p.stock <= 0;
-    const isSale = p.originalPrice > p.price;
     
+    // 💡 圖片讀取優化：使用 loading="lazy" 並在載入後加入 .loaded class
     const media = p.imageUrl 
-      ? `<img src="${p.imageUrl}" alt="${p.name}">`
+      ? `<img src="${p.imageUrl}" 
+              alt="${p.name}" 
+              loading="lazy" 
+              decoding="async" 
+              onload="this.classList.add('loaded'); this.parentElement.style.animation='none';">`
       : `<div style="font-size:4rem;">${p.emoji || '🌿'}</div>`;
 
-    // 使用 global.css 內的 badge 樣式
-    let badgeHtml = '';
-    if (isOut) badgeHtml = `<span class="badge badge--out" style="position:absolute; top:12px; left:12px; z-index:2;">已售罄</span>`;
-    else if (p.featured) badgeHtml = `<span class="badge badge--hot" style="position:absolute; top:12px; left:12px; z-index:2;">熱銷</span>`;
-    else if (isSale) badgeHtml = `<span class="badge badge--sale" style="position:absolute; top:12px; left:12px; z-index:2;">特價</span>`;
-
     return `
-      <article class="product-card" style="${isOut ? 'opacity:0.6; filter:grayscale(0.5);' : ''}">
+      <article class="product-card" style="${isOut ? 'opacity:0.7; filter:grayscale(0.6);' : ''}">
         <div class="card-img">
-          ${badgeHtml}
+          ${p.featured ? '<span class="badge badge--hot" style="position:absolute;top:15px;left:15px;z-index:2">HOT</span>' : ''}
           ${media}
         </div>
         <div class="card-body">
-          <p class="card-cat">${p.category === 'beginner' ? '🌱 新手入門' : p.category === 'collector' ? '🪴 資深玩家' : '🪣 介質與工具'}</p>
+          <p style="font-size:0.7rem; color:var(--moss); font-family:var(--font-mono); margin-bottom:5px; text-transform:uppercase;">${p.category}</p>
           <h3 class="card-name">${p.name}</h3>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto;">
-            <p class="card-price">NT$ ${p.price || 0}</p>
-            <button class="btn-cart add-to-cart-btn" data-id="${p.id}" ${isOut ? 'disabled' : ''}>
-              ${isOut ? '補貨中' : '加入購物車'}
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:15px;">
+            <p class="card-price">NT$ ${p.price.toLocaleString()}</p>
+            <button class="btn btn--primary add-to-cart-btn" 
+                    data-id="${p.id}" 
+                    style="padding:8px 16px; font-size:0.8rem;" 
+                    ${isOut ? 'disabled' : ''}>
+              ${isOut ? '已售完' : '加入購物車'}
             </button>
           </div>
         </div>
@@ -141,39 +163,35 @@ function renderProducts() {
   }).join('');
 }
 
-// 綁定篩選按鈕事件 
+// 🟢 篩選按鈕事件
 document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', (e) => {
+  btn.onclick = (e) => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     e.target.classList.add('active');
     currentCategory = e.target.dataset.cat;
-    renderProducts();
-  });
+    render();
+  };
 });
 
-// 🎯 高光時刻：綁定加入購物車事件 (完美串接你的 global.js)
-document.getElementById('product-grid').addEventListener('click', (e) => {
+// 🟢 加入購物車事件 (使用 global.js 模組)
+document.getElementById('product-grid').onclick = (e) => {
   const btn = e.target.closest('.add-to-cart-btn');
   if (!btn) return;
   
-  const id = btn.dataset.id;
-  const p = dbProducts.find(x => x.id === id);
-  if (p) {
-    // 呼叫模組內的 Cart 儲存機制
+  const product = allProducts.find(x => x.id === btn.dataset.id);
+  if (product) {
     Cart.add({
-      id: p.id,
-      name: p.name,
-      price: p.price,
-      size: p.size || '規格如內文',
-      emoji: p.emoji,
-      imageUrl: p.imageUrl
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      emoji: product.emoji,
+      imageUrl: product.imageUrl
     });
-    // 呼叫模組內的 Toast 提示，而且右上角的購物車角標會自動更新！
-    showToast(`✦ 已將 ${p.name} 加入購物車！`);
+    showToast(`✦ 已將 ${product.name} 加入購物車`);
   }
-});
+};
 
-initApp();
+init();
 </script>
 
 </body>
