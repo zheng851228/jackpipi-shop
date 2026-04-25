@@ -158,6 +158,23 @@
     let selectedPay = 'transfer';
     let shipFee = 100;
 
+    const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[ch]));
+
+    function safeImageUrl(url) {
+      try {
+        const parsed = new URL(url, window.location.href);
+        return parsed.protocol === "https:" || parsed.protocol === "http:";
+      } catch {
+        return false;
+      }
+    }
+
     // 🟢 1. 監聽登入狀態並預填資料
     onAuthStateChanged(auth, user => {
       if (user) {
@@ -182,12 +199,12 @@
       const listHTML = cart.map(i => `
         <div class="os-item">
           <div class="os-thumb">
-            ${i.imageUrl ? `<img src="${i.imageUrl}" loading="lazy">` : i.emoji}
-            <span class="os-qty">${i.qty}</span>
+            ${safeImageUrl(i.imageUrl) ? `<img src="${escapeHTML(i.imageUrl)}" loading="lazy" alt="${escapeHTML(i.name)}">` : escapeHTML(i.emoji || "🌿")}
+            <span class="os-qty">${escapeHTML(i.qty)}</span>
           </div>
           <div style="flex:1">
-            <p style="font-size:0.88rem; font-weight:500; color:var(--deep-forest);">${i.name}</p>
-            <p style="font-size:0.75rem; color:var(--text-light);">${i.size || '標準規格'}</p>
+            <p style="font-size:0.88rem; font-weight:500; color:var(--deep-forest);">${escapeHTML(i.name)}</p>
+            <p style="font-size:0.75rem; color:var(--text-light);">${escapeHTML(i.size || '標準規格')}</p>
           </div>
           <p style="font-family:var(--font-mono); font-size:0.9rem;">NT$ ${(i.price * i.qty).toLocaleString()}</p>
         </div>
