@@ -169,6 +169,7 @@ function render() {
             <p class="card-price">NT$ ${p.price.toLocaleString()}</p>
             <button class="btn btn--primary add-to-cart-btn" 
                     data-id="${escapeHTML(p.id)}" 
+                    onclick="window.addProductToCartFromButton(this.dataset.id)"
                     style="padding:8px 16px; font-size:0.8rem;" 
                     ${isOut ? 'disabled' : ''}>
               ${isOut ? '已售完' : '加入購物車'}
@@ -178,7 +179,23 @@ function render() {
       </article>
     `;
   }).join('');
+
 }
+
+function addProductToCart(productId) {
+  const product = allProducts.find(x => x.id === productId);
+  if (!product) return;
+  Cart.add({
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    emoji: product.emoji,
+    imageUrl: product.imageUrl
+  });
+  showToast(`✦ 已將 ${product.name} 加入購物車`);
+}
+
+window.addProductToCartFromButton = addProductToCart;
 
 // 🟢 篩選按鈕事件
 document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -189,24 +206,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     render();
   };
 });
-
-// 🟢 加入購物車事件 (使用 global.js 模組)
-document.getElementById('product-grid').onclick = (e) => {
-  const btn = e.target.closest('.add-to-cart-btn');
-  if (!btn) return;
-  
-  const product = allProducts.find(x => x.id === btn.dataset.id);
-  if (product) {
-    Cart.add({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      emoji: product.emoji,
-      imageUrl: product.imageUrl
-    });
-    showToast(`✦ 已將 ${product.name} 加入購物車`);
-  }
-};
 
 init();
 </script>
