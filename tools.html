@@ -292,7 +292,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   <div class="cart-ft">
     <div class="cart-row"><span>小計</span><span id="cart-sub">NT$ 0</span></div>
     <div class="cart-total-row"><span>總計</span><span id="cart-total">NT$ 0</span></div>
-    <button class="btn-checkout">前往結帳</button>
+    <button class="btn-checkout" id="checkout-btn">前往結帳</button>
   </div>
 </aside>
 <div class="toast-wrap" id="toast-wrap"></div>
@@ -400,6 +400,10 @@ document.getElementById('cart-body').addEventListener('click',e=>{
   if(btn.dataset.action==='inc')item.qty++;
   else{item.qty--;if(item.qty<=0)cart.splice(cart.indexOf(item),1);}
   saveCart();updateCount();renderCart();
+});
+document.getElementById('checkout-btn').addEventListener('click',()=>{
+  if(!cart.length){showToast('購物車目前是空的');return;}
+  window.location.href='checkout.html';
 });
 window.addEventListener('scroll',()=>{
   const nav=document.getElementById('nav');

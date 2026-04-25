@@ -59,6 +59,23 @@
     import { db } from "./firebase-config.js";
     import { collection, query, where, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+    const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[ch]));
+
+    function safeImageUrl(url) {
+      try {
+        const parsed = new URL(url, window.location.href);
+        return parsed.protocol === "https:" || parsed.protocol === "http:";
+      } catch {
+        return false;
+      }
+    }
+
     function listenFeatured() {
       const listEl = document.getElementById('featured-list');
       if (!listEl) return;
@@ -79,17 +96,17 @@
         let html = '';
         snapshot.forEach(doc => {
           const p = doc.data();
-          const media = p.imageUrl 
-            ? `<img src="${p.imageUrl}" alt="${p.name}">` 
-            : `<span style="font-size:3.5rem">${p.emoji || '🌿'}</span>`;
+          const media = safeImageUrl(p.imageUrl)
+            ? `<img src="${escapeHTML(p.imageUrl)}" alt="${escapeHTML(p.name)}">`
+            : `<span style="font-size:3.5rem">${escapeHTML(p.emoji || '🌿')}</span>`;
 
           html += `
             <article class="product-card reveal reveal-scale visible">
               <span class="badge badge--hot" style="position:absolute; top:15px; left:15px; z-index:2;">精選</span>
               <div class="card-img">${media}</div>
               <div class="card-body">
-                <h3 class="card-name">${p.name}</h3>
-                <p class="card-price">NT$ ${p.price.toLocaleString()}</p>
+                <h3 class="card-name">${escapeHTML(p.name)}</h3>
+                <p class="card-price">NT$ ${Number(p.price || 0).toLocaleString()}</p>
                 <a href="product.html" style="margin-top:15px; font-size:0.8rem; color:var(--moss); text-decoration:underline; display:block">查看詳細照護資訊</a>
               </div>
             </article>

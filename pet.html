@@ -101,20 +101,25 @@ a{color:inherit;text-decoration:none}
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { db } from "./firebase-config.js";
+import { collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC103Q-v31-z7nHnnM8KpIZbrrzjrGgGJ4",
-  authDomain: "fir-config-f2e57.firebaseapp.com",
-  projectId: "fir-config-f2e57",
-  storageBucket: "fir-config-f2e57.firebasestorage.app",
-  messagingSenderId: "860181486529",
-  appId: "1:860181486529:web:6f7053a9141694afc66d40"
-};
+const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+}[ch]));
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+function safeImageUrl(url) {
+  try {
+    const parsed = new URL(url, window.location.href);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
 
 let dbPlants = [];
 let petOnly = false;
@@ -129,7 +134,7 @@ function initAssistant() {
     renderHints();
   }, (error) => {
     console.error("Firebase 讀取錯誤：", error);
-    document.getElementById('plants-list').innerHTML = `<p style="color:red">圖鑑載入失敗：${error.message}</p>`;
+    document.getElementById('plants-list').innerHTML = `<p style="color:red">圖鑑載入失敗：${escapeHTML(error.message)}</p>`;
   });
 }
 
@@ -144,12 +149,12 @@ function renderList() {
   }
 
   grid.innerHTML = filtered.map(p => {
-    const media = p.imageUrl ? `<img src="${p.imageUrl}">` : (p.emoji || '🌿');
+    const media = safeImageUrl(p.imageUrl) ? `<img src="${escapeHTML(p.imageUrl)}" alt="${escapeHTML(p.name)}">` : escapeHTML(p.emoji || '🌿');
     return `
-      <div class="plant-row lookup-btn" data-id="${p.id}">
+      <div class="plant-row lookup-btn" data-id="${escapeHTML(p.id)}">
         <div class="plant-row__emoji">${media}</div>
         <div>
-          <p style="font-weight:500; color:var(--deep-forest); margin-bottom:4px;">${p.name}</p>
+          <p style="font-weight:500; color:var(--deep-forest); margin-bottom:4px;">${escapeHTML(p.name)}</p>
           ${p.petSafe ? '<span class="tag tag--safe">🐾 寵物友善</span>' : '<span class="tag" style="background:#f5e6e1; color:var(--terracotta)">⚠️ 需注意</span>'}
         </div>
       </div>
@@ -166,7 +171,7 @@ function renderHints() {
     return;
   }
   hintContainer.innerHTML = '<span style="color:var(--text-light)">快速查詢：</span>' + 
-    hints.map(p => `<span class="search-tag hint-btn" data-name="${p.name}">${p.name}</span>`).join('');
+    hints.map(p => `<span class="search-tag hint-btn" data-name="${escapeHTML(p.name)}">${escapeHTML(p.name)}</span>`).join('');
 }
 
 // 4. 搜尋與顯示結果邏輯
@@ -176,7 +181,7 @@ function search() {
   if(!q) return;
 
   const match = dbPlants.find(p => 
-    p.name.includes(q) || (p.species && p.species.toLowerCase().includes(q))
+    String(p.name || '').toLowerCase().includes(q) || (p.species && p.species.toLowerCase().includes(q))
   );
 
   if(match) {
@@ -186,7 +191,7 @@ function search() {
     section.innerHTML = `
       <div class="result-card" style="text-align:center;">
         <p style="font-size:2rem; margin-bottom:10px;">🌵</p>
-        <p style="color:var(--text-muted);">找不到「${q}」的相關照護資訊</p>
+        <p style="color:var(--text-muted);">找不到「${escapeHTML(q)}」的相關照護資訊</p>
       </div>`;
   }
 }
@@ -195,7 +200,7 @@ function showResult(p) {
   const section = document.getElementById('result-section');
   section.style.display = 'block';
   
-  const media = p.imageUrl ? `<img src="${p.imageUrl}">` : (p.emoji || '🌿');
+  const media = safeImageUrl(p.imageUrl) ? `<img src="${escapeHTML(p.imageUrl)}" alt="${escapeHTML(p.name)}">` : escapeHTML(p.emoji || '🌿');
   
   // 處理防呆：如果後台沒填寫照護參數，給予預設值
   const sun = p.careSun || '半日照 / 散射光';
@@ -208,18 +213,18 @@ function showResult(p) {
       <div class="result-header">
         <div class="result-emoji">${media}</div>
         <div>
-          <h2 style="font-size:1.4rem; color:var(--deep-forest); margin-bottom:5px;">${p.name}</h2>
-          <p style="font-family:var(--font-display); font-style:italic; color:var(--text-light); margin-bottom:8px;">${p.species || '未知學名'}</p>
+          <h2 style="font-size:1.4rem; color:var(--deep-forest); margin-bottom:5px;">${escapeHTML(p.name)}</h2>
+          <p style="font-family:var(--font-display); font-style:italic; color:var(--text-light); margin-bottom:8px;">${escapeHTML(p.species || '未知學名')}</p>
           ${p.petSafe ? '<span class="tag tag--safe">🐾 寵物友善</span>' : '<span class="tag" style="background:#f5e6e1; color:var(--terracotta)">⚠️ 需注意</span>'}
         </div>
       </div>
       <div class="care-grid-result">
-        <div class="care-item"><div class="care-item__label">☀️ 日照需求</div><div style="font-weight:500;">${sun}</div></div>
-        <div class="care-item"><div class="care-item__label">💧 澆水頻率</div><div style="font-weight:500;">${water}</div></div>
-        <div class="care-item"><div class="care-item__label">🌡️ 適合溫度</div><div style="font-weight:500;">${temp}</div></div>
+        <div class="care-item"><div class="care-item__label">☀️ 日照需求</div><div style="font-weight:500;">${escapeHTML(sun)}</div></div>
+        <div class="care-item"><div class="care-item__label">💧 澆水頻率</div><div style="font-weight:500;">${escapeHTML(water)}</div></div>
+        <div class="care-item"><div class="care-item__label">🌡️ 適合溫度</div><div style="font-weight:500;">${escapeHTML(temp)}</div></div>
       </div>
       <div style="padding:16px; background:var(--sand-light); border-left:3px solid var(--moss); margin-bottom:20px; font-size:0.9rem; color:var(--text-muted);">
-        ${desc}
+        ${escapeHTML(desc)}
       </div>
       <a href="product.html" class="btn-primary">前往植物室選購</a>
     </div>`;
