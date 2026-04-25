@@ -97,6 +97,23 @@ import { collection, onSnapshot, query, where, orderBy } from "https://www.gstat
 let allProducts = [];
 let currentCategory = '';
 
+const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+}[ch]));
+
+function safeImageUrl(url) {
+  try {
+    const parsed = new URL(url, window.location.href);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
 // 🟢 啟動監聽
 function init() {
   const q = query(collection(db, "products"), where("active", "==", true));
@@ -131,13 +148,13 @@ function render() {
     const isOut = p.stock <= 0;
     
     // 💡 圖片讀取優化：使用 loading="lazy" 並在載入後加入 .loaded class
-    const media = p.imageUrl 
-      ? `<img src="${p.imageUrl}" 
-              alt="${p.name}" 
+    const media = safeImageUrl(p.imageUrl)
+      ? `<img src="${escapeHTML(p.imageUrl)}" 
+              alt="${escapeHTML(p.name)}" 
               loading="lazy" 
               decoding="async" 
               onload="this.classList.add('loaded'); this.parentElement.style.animation='none';">`
-      : `<div style="font-size:4rem;">${p.emoji || '🌿'}</div>`;
+      : `<div style="font-size:4rem;">${escapeHTML(p.emoji || '🌿')}</div>`;
 
     return `
       <article class="product-card" style="${isOut ? 'opacity:0.7; filter:grayscale(0.6);' : ''}">
@@ -146,12 +163,12 @@ function render() {
           ${media}
         </div>
         <div class="card-body">
-          <p style="font-size:0.7rem; color:var(--moss); font-family:var(--font-mono); margin-bottom:5px; text-transform:uppercase;">${p.category}</p>
-          <h3 class="card-name">${p.name}</h3>
+          <p style="font-size:0.7rem; color:var(--moss); font-family:var(--font-mono); margin-bottom:5px; text-transform:uppercase;">${escapeHTML(p.category)}</p>
+          <h3 class="card-name">${escapeHTML(p.name)}</h3>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:15px;">
             <p class="card-price">NT$ ${p.price.toLocaleString()}</p>
             <button class="btn btn--primary add-to-cart-btn" 
-                    data-id="${p.id}" 
+                    data-id="${escapeHTML(p.id)}" 
                     style="padding:8px 16px; font-size:0.8rem;" 
                     ${isOut ? 'disabled' : ''}>
               ${isOut ? '已售完' : '加入購物車'}

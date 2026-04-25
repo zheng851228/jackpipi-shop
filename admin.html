@@ -146,13 +146,45 @@
 
 <script type="module">
 import { db, storage, auth } from "./firebase-config.js";
-import { collection, onSnapshot, query, orderBy, updateDoc, doc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { collection, onSnapshot, query, orderBy, updateDoc, doc, addDoc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { signOut, onAuthStateChanged, getIdTokenResult } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const $ = id => document.getElementById(id);
 let currentOrders = [];
 let imgFile = null;
+
+const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+}[ch]));
+
+function safeImageUrl(url) {
+  try {
+    const parsed = new URL(url, window.location.href);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function formatDate(value) {
+  return value?.toDate ? value.toDate().toLocaleString() : "";
+}
+
+async function canAccessAdmin(user) {
+  if (!user) return false;
+  const token = await getIdTokenResult(user, true);
+  if (token.claims.admin === true) return true;
+
+  const userSnap = await getDoc(doc(db, "users", user.uid));
+  if (!userSnap.exists()) return false;
+  const data = userSnap.data();
+  return data.role === "admin" || data.isAdmin === true;
+}
 
 // 🟢 1. 圖片壓縮 (優化讀取速度)
 async function compressImage(file, { maxWidth = 1000, quality = 0.7 } = {}) {
@@ -212,12 +244,12 @@ function init() {
     $('kpi-pending').textContent = currentOrders.filter(o => o.status === '待處理').length;
     $('order-body').innerHTML = currentOrders.map(o => `
       <tr>
-        <td><strong>${o.orderId || o.id.slice(0,8)}</strong><br><small>${o.createdAt?.toDate().toLocaleString()}</small></td>
-        <td>${o.customer?.name}<br>${o.customer?.phone}</td>
-        <td>${(o.items||[]).map(i => `${i.name} x${i.qty}`).join('<br>')}</td>
+        <td><strong>${escapeHTML(o.orderId || o.id.slice(0,8))}</strong><br><small>${escapeHTML(formatDate(o.createdAt))}</small></td>
+        <td>${escapeHTML(o.customer?.name)}<br>${escapeHTML(o.customer?.phone)}</td>
+        <td>${(o.items||[]).map(i => `${escapeHTML(i.name)} x${escapeHTML(i.qty)}`).join('<br>')}</td>
         <td>NT$ ${o.total?.toLocaleString()}</td>
         <td>
-          <select class="status-select" onchange="updateOrderStatus('${o.id}', this.value)">
+          <select class="status-select" onchange="updateOrderStatus('${escapeHTML(o.id)}', this.value)">
             <option ${o.status==='待處理'?'selected':''}>待處理</option>
             <option ${o.status==='處理中'?'selected':''}>處理中</option>
             <option ${o.status==='已出貨'?'selected':''}>已出貨</option>
@@ -233,8 +265,8 @@ function init() {
     $('kpi-prods').textContent = ps.length;
     $('p-body').innerHTML = ps.map(p => `
       <tr>
-        <td><img src="${p.imageUrl || ''}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;background:#eee" alt="${p.emoji}"></td>
-        <td>${p.name}</td><td>NT$ ${p.price}</td><td>${p.stock}</td><td>${p.active?'✅ 上架':'❌ 下架'}</td>
+        <td><img src="${safeImageUrl(p.imageUrl) ? escapeHTML(p.imageUrl) : ''}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;background:#eee" alt="${escapeHTML(p.emoji)}"></td>
+        <td>${escapeHTML(p.name)}</td><td>NT$ ${escapeHTML(p.price)}</td><td>${escapeHTML(p.stock)}</td><td>${p.active?'✅ 上架':'❌ 下架'}</td>
       </tr>`).join('');
   });
 }
@@ -289,7 +321,18 @@ $('btn-save').onclick = async () => {
   }
 };
 
-init();
+onAuthStateChanged(auth, async user => {
+  try {
+    if (await canAccessAdmin(user)) {
+      init();
+      return;
+    }
+  } catch (e) {
+    console.error("Admin auth check failed:", e);
+  }
+  alert("請先使用管理員帳號登入");
+  location.href = "member.html";
+});
 </script>
 </body>
 </html>
